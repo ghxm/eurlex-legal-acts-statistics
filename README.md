@@ -5,8 +5,6 @@ This project parses [legal acts statistics from EUR-Lex](https://eur-lex.europa.
 
 [^1]: The statistics are already compiled by EUR-Lex just not provided in a format that is easily digestible.
 
-While this project has a useful purpose, it is meant to explore automated data collection and processing for dataset provision. The project is not affiliated with EUR-Lex or the European Union.
-
 ## Setup
 
 ### Parse data
@@ -30,12 +28,26 @@ CLI arguments for DOI generation:
 - `--zenodo-token`: Your Zenodo API token (can also be set via ZENODO_TOKEN environment variable)
 - `--production`: Use Zenodo production environment instead of sandbox (default is sandbox for testing)
 
-##### Customizing Metadata for DOIs
+#### Creating GitHub Releases for Datasets
 
-You can customize the metadata associated with your DOI:
+You can create GitHub releases for each dataset:
 
 ```bash
-python parse_legal_acts_statistics.py --input "<input_csv>" --output "cache/<output_csv>" --generate-doi --zenodo-token "YOUR_ZENODO_TOKEN" --authors "Jane Doe, John Smith" --title "My Custom Dataset Title" --description "A detailed description of this dataset"
+python parse_legal_acts_statistics.py --input "<input_csv>" --output "cache/<output_csv>" --create-github-release --github-token "YOUR_GITHUB_TOKEN"
+```
+
+CLI arguments for GitHub releases:
+- `--create-github-release`: Enable creating a GitHub release
+- `--github-token`: Your GitHub API token (can also be set via GITHUB_TOKEN environment variable)
+- `--github-repo-owner`: GitHub repository owner (automatically detected in GitHub Actions)
+- `--github-repo-name`: GitHub repository name (automatically detected in GitHub Actions)
+
+#### Customizing Metadata
+
+You can customize the metadata associated with your dataset (used for both DOIs and GitHub releases):
+
+```bash
+python parse_legal_acts_statistics.py --input "<input_csv>" --output "cache/<output_csv>" --generate-doi --zenodo-token "YOUR_ZENODO_TOKEN" --create-github-release --github-token "YOUR_GITHUB_TOKEN" --authors "Jane Doe, John Smith" --title "My Custom Dataset Title" --description "A detailed description of this dataset"
 ```
 
 Available metadata options:
@@ -68,6 +80,7 @@ Updates are automated monthly via GitHub Actions:
 - Statistics pages are generated in the `stats_pages` folder
 - The main webpage is updated to display the latest statistics
 - If ZENODO_TOKEN is configured as a repository secret, DOIs will be generated automatically
+- GitHub releases are created for each dataset automatically
 
 ## Webpage
 

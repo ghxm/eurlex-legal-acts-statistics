@@ -6,7 +6,8 @@ import json
 from io import StringIO
 from datetime import datetime
 
-def parse_csv(input_path, output_path, generate_doi=False, zenodo_token=None, sandbox=True, metadata=None):
+def parse_csv(input_path, output_path, generate_doi=False, zenodo_token=None, sandbox=True, metadata=None, 
+             create_github_release=False, github_token=None, github_repo_owner=None, github_repo_name=None):
     if input_path.startswith('http://') or input_path.startswith('https://'):
         response = requests.get(input_path)
         response.raise_for_status()
@@ -91,6 +92,50 @@ def parse_csv(input_path, output_path, generate_doi=False, zenodo_token=None, sa
         except Exception as e:
             print(f"Error generating DOI: {e}")
     
+    # Create GitHub Release if requested
+    if create_github_release:
+        try:
+            from github_publisher import GitHubPublisher
+            
+            # Extract date from filename
+            filename = os.path.basename(output_path)
+            date_match = filename.replace('eurlex_legal_acts_statistics_', '').replace('.csv', '')
+            
+            # Format date for display
+            try:
+                year, month = date_match.split('_')
+                formatted_date = datetime(int(year), int(month), 1).strftime('%B %Y')
+            except:
+                formatted_date = date_match
+            
+            # Create tag name and release title
+            tag_name = f"dataset-{date_match}"
+            title = metadata.get('title') if metadata else f"EU Legislative Acts Statistics - {formatted_date}"
+            
+            # Create release body with description
+            description = metadata.get('description') if metadata else f"Monthly statistics of EU legislative acts for {formatted_date}."
+            body = f"{description}\n\nThis dataset contains legislative acts statistics from EUR-Lex for {formatted_date}."
+            
+            # Create publisher and publish release
+            publisher = GitHubPublisher(
+                token=github_token,
+                repo_owner=github_repo_owner,
+                repo_name=github_repo_name
+            )
+            
+            # Create the GitHub release (including DOI if available)
+            release_data = publisher.create_release(
+                tag_name=tag_name,
+                csv_path=output_path,
+                title=title,
+                body=body,
+                doi=doi_info['doi'] if doi_info else None
+            )
+            
+            print(f"GitHub Release created: {release_data['html_url']}")
+        except Exception as e:
+            print(f"Error creating GitHub Release: {e}")
+    
     return doi_info
 
 if __name__ == "__main__":
@@ -100,6 +145,12 @@ if __name__ == "__main__":
     parser.add_argument('--generate-doi', action='store_true', help='Generate a DOI for the dataset using Zenodo')
     parser.add_argument('--zenodo-token', help='Zenodo API token (or set ZENODO_TOKEN env variable)')
     parser.add_argument('--production', action='store_true', help='Use Zenodo production instead of sandbox')
+    
+    # GitHub Release arguments
+    parser.add_argument('--create-github-release', action='store_true', help='Create a GitHub release for the dataset')
+    parser.add_argument('--github-token', help='GitHub API token (or set GITHUB_TOKEN env variable)')
+    parser.add_argument('--github-repo-owner', help='GitHub repository owner (automatically detected in GitHub Actions)')
+    parser.add_argument('--github-repo-name', help='GitHub repository name (automatically detected in GitHub Actions)')
     
     # Metadata arguments
     parser.add_argument('--authors', help='Authors/creators of the dataset (comma-separated)')
@@ -129,7 +180,11 @@ if __name__ == "__main__":
         generate_doi=args.generate_doi,
         zenodo_token=args.zenodo_token,
         sandbox=not args.production,
-        metadata=metadata if metadata else None
+        metadata=metadata if metadata else None,
+        create_github_release=args.create_github_release,
+        github_token=args.github_token,
+        github_repo_owner=args.github_repo_owner,
+        github_repo_name=args.github_repo_name
     )
     print(f"Parsed data from {args.input} and saved to {args.output}")
 

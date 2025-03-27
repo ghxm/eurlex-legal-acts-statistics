@@ -37,17 +37,17 @@
                 
                 <li class="dataset-item">
                     <div class="dataset-title">
-                        <a href="#eurlex_legal_acts_statistics_2025_03_parsed_20250327" class="stats-link" data-src="eurlex_legal_acts_statistics_2025_03_parsed_20250327.html">Legislative Acts Statistics - March 2025 (Parsed: 2025-03-27)</a>
+                        <a href="#eurlex_legal_acts_statistics_2025_03_parsed_20250327" class="stats-link" data-src="stats_pages/eurlex_legal_acts_statistics_2025_03_parsed_20250327.html">Legislative Acts Statistics - March 2025 (Parsed: 2025-03-27)</a>
                         
                     </div>
                     
-                    <span class="timestamp">Parsed: 2025-03-27 09:37:23</span>
+                    <span class="timestamp">Parsed: 2025-03-27 09:41:10</span>
                     
                 </li>
                 
                 <li class="dataset-item">
                     <div class="dataset-title">
-                        <a href="#eurlex_legal_acts_statistics_2025_03" class="stats-link" data-src="eurlex_legal_acts_statistics_2025_03.html">Legislative Acts Statistics - March 2025</a>
+                        <a href="#eurlex_legal_acts_statistics_2025_03" class="stats-link" data-src="stats_pages/eurlex_legal_acts_statistics_2025_03.html">Legislative Acts Statistics - March 2025</a>
                         
                     </div>
                     
@@ -67,7 +67,7 @@
                 <p>Select a report from the sidebar to view detailed statistics.</p>
                 
                 
-                <p>Latest report: <a href="#eurlex_legal_acts_statistics_2025_03_parsed_20250327" class="stats-link" data-src="eurlex_legal_acts_statistics_2025_03_parsed_20250327.html">Legislative Acts Statistics - March 2025 (Parsed: 2025-03-27)</a></p>
+                <p>Latest report: <a href="#eurlex_legal_acts_statistics_2025_03_parsed_20250327" class="stats-link" data-src="stats_pages/eurlex_legal_acts_statistics_2025_03_parsed_20250327.html">Legislative Acts Statistics - March 2025 (Parsed: 2025-03-27)</a></p>
                 
                 
                 <p>This project collects and visualizes statistics about EU legislative acts from the official EUR-Lex website. The data is updated monthly.</p>
@@ -89,7 +89,8 @@
                 link.addEventListener('click', function(e) {
                     e.preventDefault();
                     const src = this.getAttribute('data-src');
-                    frame.src = src;
+                    // Ensure path is relative to the current document
+                    frame.src = src.startsWith('/') ? src : src;
                     frame.style.display = 'block';
                     noSelection.style.display = 'none';
                     

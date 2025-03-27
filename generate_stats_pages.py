@@ -34,19 +34,24 @@ def generate_stats_page(csv_path, output_dir):
     # Handle format: eurlex_legal_acts_statistics_YYYYMMDD.csv
     date_match = re.search(r'eurlex_legal_acts_statistics_(\d{8})', base_name)
     
+    commit_version = os.getenv("GITHUB_SHA", "unknown commit")
+    
     if date_match:
         parsing_date_str = date_match.group(1)
+        parsing_date_formatted = None
         # Format the parsing date
         try:
             parsing_date = datetime.strptime(parsing_date_str, '%Y%m%d')
             parsing_date_formatted = parsing_date.strftime('%Y-%m-%d')
-            title = f"EUR-Lex Cumulative Legislative Acts Statistics (Snapshot: {parsing_date_formatted})"
+            title = f"EUR-Lex legislative act statistics - {parsing_date_formatted if 'parsing_date_formatted' in locals() else parsing_date_str}"
         except:
-            title = f"EUR-Lex Cumulative Legislative Acts Statistics (Snapshot: {parsing_date_str})"
+            title = f"EUR-Lex legislative act statistics - {parsing_date_str}"
         
-        period = f"Snapshot: {parsing_date_formatted if 'parsing_date_formatted' in locals() else parsing_date_str}"
+        period = f"Snapshot: {parsing_date_formatted if 'parsing_date' in locals() else parsing_date_str}"
+
     else:
-        title = f"EUR-Lex Cumulative Legislative Acts Statistics - {base_name}"
+
+        title = f"EUR-Lex legislative act statistics - {base_name}"
         period = base_name
         
     if parsing_timestamp and "Parsed:" not in title:
@@ -106,7 +111,8 @@ def generate_stats_page(csv_path, output_dir):
         doi_info=doi_info,
         csv_filename=filename,
         parsing_timestamp=parsing_timestamp,
-        data_explanation="This dataset contains cumulative statistics of all EU legislative acts available in EUR-Lex at the time of parsing. The data represents the total number of acts, not just those from a specific period."
+        data_explanation="This dataset contains cumulative statistics of all EU legislative acts available in EUR-Lex at the time of parsing. The data represents the total number of acts, not just those from a specific period.",
+        commit_version=commit_version
     )
     
     # Write to HTML file

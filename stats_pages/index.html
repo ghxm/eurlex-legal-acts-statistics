@@ -1,17 +1,18 @@
+
 <!DOCTYPE html>
 <html>
 <head>
-    <title>EUR-Lex legislative act statistics</title>
+    <title>Legislative Acts Data</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body { font-family: Arial, sans-serif; margin: 0; padding: 0; line-height: 1.6; }
         .container { display: flex; height: 100vh; }
-        .sidebar { width: 300px; background-color: #f8f9fa; padding: 20px; overflow-y: auto; }
+        .sidebar { width: 250px; background-color: #f8f9fa; padding: 20px; overflow-y: auto; }
         .main-content { flex-grow: 1; padding: 20px; overflow-y: auto; }
         .sidebar h2 { margin-top: 0; }
         .sidebar ul { padding-left: 0; list-style-type: none; }
-        .sidebar li { margin-bottom: 12px; border-bottom: 1px solid #eee; padding-bottom: 8px; }
+        .sidebar li { margin-bottom: 8px; }
         .sidebar a { text-decoration: none; color: #007bff; }
         .sidebar a:hover { text-decoration: underline; }
         .current { font-weight: bold; }
@@ -20,99 +21,32 @@
         .doi-link:hover { text-decoration: underline; }
         .doi-badge { display: inline-block; font-size: 0.8em; background: #f1f8ff; padding: 1px 6px; 
                     border-radius: 3px; border: 1px solid #c8e1ff; color: #0366d6; margin-left: 5px; }
-        .download-all { margin-top: 20px; padding-top: 15px; border-top: 1px solid #ddd; }
-        .timestamp { font-size: 0.85em; color: #333; display: block; margin: 5px 0; 
-                    background: #fffde7; padding: 3px 6px; border-radius: 3px; }
-        .dataset-item { margin-bottom: 15px; }
-        .dataset-title { margin-bottom: 3px; }
-        .explanation { background-color: #e8f5e9; padding: 15px; border-radius: 5px; margin: 20px 0; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="sidebar">
-            <h2>EUR-Lex legislative act statistics</h2>
-            <p>Cumulative statistics of EU legislative acts parsed from the <a href="https://eur-lex.europa.eu/statistics/legislative-acts-statistics.html">EUR-Lex legal act statistics page</a>.</p>
-            
-            <div class="explanation">
-                <p><strong>About these datasets:</strong> Each dataset represents a snapshot of the <em>cumulative totals</em> of all legislative acts in the EUR-Lex database at the time of parsing. Newer snapshots will contain more recent data.</p>
-            </div>
-            
-            <h3>Available Snapshots</h3>
+            <h2>Legislative Acts Statistics</h2>
+            <p>Monthly statistics of EU legislative acts.</p>
+            <h3>Available Reports</h3>
             <ul id="stats-list">
                 
-                <li class="dataset-item">
-                    <div class="dataset-title">
-                        <a href="#eurlex_legal_acts_statistics_20250327" class="stats-link" data-src="stats_pages/eurlex_legal_acts_statistics_20250327.html">
-                            
-                                EU Legal Acts Statistics - 2025-03-27
-                            
-                        </a>
-                        
-                    </div>
-                    
-                    <span class="timestamp">Parsed: 2025-03-27 10:01:22</span>
-                    
-                </li>
-                
-                <li class="dataset-item">
-                    <div class="dataset-title">
-                        <a href="#eurlex_legal_acts_statistics_2025_03_parsed_20250327" class="stats-link" data-src="stats_pages/eurlex_legal_acts_statistics_2025_03_parsed_20250327.html">
-                            
-                                EUR-Lex Cumulative Legislative Acts Statistics - eurlex_legal_acts_statistics_2025_03_parsed_20250327 - Parsed: 2025-03-27 09:41:10
-                            
-                        </a>
-                        
-                    </div>
-                    
-                    <span class="timestamp">Parsed: 2025-03-27 09:41:10</span>
-                    
-                </li>
-                
-                <li class="dataset-item">
-                    <div class="dataset-title">
-                        <a href="#eurlex_legal_acts_statistics_2025_03" class="stats-link" data-src="stats_pages/eurlex_legal_acts_statistics_2025_03.html">
-                            
-                                EUR-Lex Cumulative Legislative Acts Statistics - eurlex_legal_acts_statistics_2025_03
-                            
-                        </a>
-                        
-                    </div>
+                <li>
+                    <a href="#eurlex_legal_acts_statistics_2025_03" class="stats-link" data-src="eurlex_legal_acts_statistics_2025_03.html">Legislative Acts Statistics - March 2025</a>
                     
                 </li>
                 
             </ul>
-            <div class="download-all">
-                <h3>Download Data</h3>
-                <p>All raw data files are available in <a href="https://github.com/maxhaag/eurlex-legal-acts-statistics/tree/main/cache" target="_blank">CSV format</a> for download.</p>
-            </div>
             <p><a href="https://github.com/maxhaag/eurlex-legal-acts-statistics" target="_blank">GitHub Repository</a></p>
         </div>
         <div class="main-content">
             <iframe id="stats-frame" src="" style="display:none;"></iframe>
             <div id="no-selection" class="loading">
                 <h2>EU Legislative Acts Statistics</h2>
-                <p>Select a snapshot from the sidebar to view detailed statistics.</p>
+                <p>Select a report from the sidebar to view detailed statistics.</p>
                 
+                <p>Latest report: <a href="#eurlex_legal_acts_statistics_2025_03" class="stats-link" data-src="eurlex_legal_acts_statistics_2025_03.html">Legislative Acts Statistics - March 2025</a></p>
                 
-                <p>Latest snapshot: <a href="#eurlex_legal_acts_statistics_20250327" class="stats-link" data-src="stats_pages/eurlex_legal_acts_statistics_20250327.html">EUR-Lex Cumulative Legislative Acts Statistics (Snapshot: 2025-03-27) - Parsed: 2025-03-27 10:01:22</a></p>
-                
-                
-                <div class="explanation">
-                    <h3>Understanding this Data</h3>
-                    <p>This project collects and visualizes statistics about EU legislative acts from the official EUR-Lex website. The data shows the <strong>cumulative totals</strong> of all legislative acts in the EUR-Lex database at the time of data collection.</p>
-                    
-                    <p><strong>Important clarifications:</strong></p>
-                    <ul>
-                        <li>Each dataset is a <strong>snapshot</strong> of the entire EUR-Lex database at a specific point in time</li>
-                        <li>The data is <strong>cumulative</strong> - it represents all acts ever published, not just those from recent months</li>
-                        <li>Newer snapshots will include more recent legislation than older snapshots</li>
-                        <li>The date in each snapshot title refers to when the data was collected from EUR-Lex</li>
-                    </ul>
-                </div>
-                
-                <h3>About the Data</h3>
-                <p>The statistics show the number of basic and amending legislative acts by category and type. The data is extracted from the <a href="https://eur-lex.europa.eu/statistics/legislative-acts-statistics.html" target="_blank">EUR-Lex statistics page</a>.</p>
             </div>
         </div>
     </div>
@@ -128,8 +62,7 @@
                 link.addEventListener('click', function(e) {
                     e.preventDefault();
                     const src = this.getAttribute('data-src');
-                    // Ensure path is relative to the current document
-                    frame.src = src.startsWith('/') ? src : src;
+                    frame.src = src;
                     frame.style.display = 'block';
                     noSelection.style.display = 'none';
                     

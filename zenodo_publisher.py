@@ -22,7 +22,8 @@ class ZenodoPublisher:
         self.base_url = "https://sandbox.zenodo.org/api" if sandbox else "https://zenodo.org/api"
         self.headers = {"Content-Type": "application/json", "Authorization": f"Bearer {self.token}"}
     
-    def create_or_update_deposit(self, csv_path, dataset_date, metadata=None, parsing_timestamp=None):
+    def create_or_update_deposit(self, csv_path, dataset_date, metadata=None,
+                                 parsing_timestamp=None, code_path=None):
         """
         Create a new deposit or update an existing one on Zenodo.
         
@@ -31,6 +32,7 @@ class ZenodoPublisher:
             dataset_date (str): Date string in YYYY_MM format
             metadata (dict): Additional metadata for the deposit
             parsing_timestamp (str): Timestamp when the data was parsed
+            code_path (str): Path to the code file to upload
 
         Returns:
             str: DOI for the deposit
@@ -69,7 +71,7 @@ class ZenodoPublisher:
         deposit_id = deposit_data["id"]
         bucket_url = deposit_data["links"]["bucket"]
         
-        # Upload the file
+        # Upload the CSV file
         with open(csv_path, "rb") as file:
             filename = os.path.basename(csv_path)
             r = requests.put(
@@ -79,6 +81,17 @@ class ZenodoPublisher:
             )
             r.raise_for_status()
         
+        # Upload the parsing code if provided
+        if code_path and os.path.exists(code_path):
+            with open(code_path, "rb") as file:
+                filename = os.path.basename(code_path)
+                r = requests.put(
+                    f"{bucket_url}/{filename}",
+                    headers={"Authorization": f"Bearer {self.token}"},
+                    data=file
+                )
+                r.raise_for_status()
+
         # Publish the deposit
         r = requests.post(
             f"{self.base_url}/deposit/depositions/{deposit_id}/actions/publish",

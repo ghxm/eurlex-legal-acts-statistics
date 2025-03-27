@@ -45,7 +45,7 @@
                     <div class="dataset-title">
                         <a href="#{{ file.id }}" class="stats-link" data-src="{{ file.path }}">
                             {% if file.parsing_date %}
-                                EU Legal Acts Statistics - {{ file.parsing_date[:4] }}-{{ file.parsing_date[4:6] }}-{{ file.parsing_date[6:] }}
+                                {{ file.parsing_date[:4] }}-{{ file.parsing_date[4:6] }}-{{ file.parsing_date[6:] }}
                             {% else %}
                                 {{ file.title }}
                             {% endif %}
@@ -129,7 +129,7 @@
                         targetLink.click();
                     }
                 } else if(links.length > 0) {
-                    // Load first report by default
+                    // Load newest (first in list)
                     links[0].click();
                 }
             }

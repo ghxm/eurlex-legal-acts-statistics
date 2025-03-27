@@ -44,6 +44,12 @@
         </div>
         {% endif %}
         
+        {% if commit_version %}
+        <div style="background-color: #fffde7; padding: 10px; margin-bottom: 20px; border-radius: 5px;">
+            <p><strong>Commit version:</strong> {{ commit_version }}</p>
+        </div>
+        {% endif %}
+        
         <div class="download-section">
             <h2>Download Data</h2>
             <p>Download the raw data in CSV format for your own analysis:</p>

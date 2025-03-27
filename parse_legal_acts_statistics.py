@@ -7,7 +7,8 @@ from io import StringIO
 from datetime import datetime
 
 def parse_csv(input_path, output_path, generate_doi=False, zenodo_token=None, sandbox=True, metadata=None, 
-             create_github_release=False, github_token=None, github_repo_owner=None, github_repo_name=None):
+             create_github_release=False, github_token=None, github_repo_owner=None, github_repo_name=None,
+             include_parsing_code=False, parsing_code_path="parse_legal_acts_statistics.py"):
     """
     Parse legislative acts CSV file from local file or URL.
     
@@ -22,6 +23,8 @@ def parse_csv(input_path, output_path, generate_doi=False, zenodo_token=None, sa
         github_token (str): GitHub API token
         github_repo_owner (str): GitHub repository owner
         github_repo_name (str): GitHub repository name
+        include_parsing_code (bool): Whether to include parsing code in DOI generation
+        parsing_code_path (str): Path to parsing code file
     
     Returns:
         tuple: DOI information (dict or None) and parsing timestamp (str)
@@ -123,7 +126,8 @@ def parse_csv(input_path, output_path, generate_doi=False, zenodo_token=None, sa
                 csv_path=output_path,
                 dataset_date=date_match,
                 metadata=metadata,
-                parsing_timestamp=parsing_timestamp
+                parsing_timestamp=parsing_timestamp,
+                code_path=parsing_code_path if include_parsing_code else None
             )
             
             # Generate citation information
@@ -214,6 +218,10 @@ if __name__ == "__main__":
     parser.add_argument('--description', help='Dataset description')
     parser.add_argument('--keywords', help='Comma-separated keywords')
     parser.add_argument('--license', help='Dataset license')
+    
+    # Parsing code inclusion option
+    parser.add_argument('--include-parsing-code', action='store_true', help='Include parsing code in DOI generation')
+    parser.add_argument('--parsing-code-path', default="parse_legal_acts_statistics.py", help='Path to parsing code file')
 
     args = parser.parse_args()
 
@@ -251,7 +259,9 @@ if __name__ == "__main__":
         create_github_release=args.create_github_release,
         github_token=args.github_token,
         github_repo_owner=args.github_repo_owner,
-        github_repo_name=args.github_repo_name
+        github_repo_name=args.github_repo_name,
+        include_parsing_code=args.include_parsing_code,
+        parsing_code_path=args.parsing_code_path
     )
     print(f"Parsed data from {args.input} and saved to {args.output}")
     print(f"Parsing timestamp: {parsing_timestamp}")

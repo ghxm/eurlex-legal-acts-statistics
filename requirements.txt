@@ -1,0 +1,11 @@
+# Data processing
+pandas>=1.3.0
+
+# HTTP requests
+requests>=2.25.0
+
+# Template rendering
+jinja2>=3.0.0
+
+# Other utilities
+python-dateutil>=2.8.0

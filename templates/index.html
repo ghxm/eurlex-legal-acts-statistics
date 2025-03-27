@@ -37,4 +37,82 @@
                 {% for file in stats_files %}
                 <li class="dataset-item">
                     <div class="dataset-title">
-                        <a href="#{{ file.id }}" class="stats-link
+                        <a href="#{{ file.id }}" class="stats-link" data-src="{{ file.path }}">{{ file.title }}</a>
+                        {% if file.doi %}
+                        <a href="https://doi.org/{{ file.doi }}" class="doi-badge" target="_blank">DOI</a>
+                        {% endif %}
+                    </div>
+                    {% if file.parsing_timestamp %}
+                    <span class="timestamp">Parsed: {{ file.parsing_timestamp }}</span>
+                    {% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+            <div class="download-all">
+                <h3>Download Data</h3>
+                <p>All raw data files are available in <a href="https://github.com/maxhaag/eurlex-legal-acts-statistics/tree/main/cache" target="_blank">CSV format</a> for download.</p>
+            </div>
+            <p><a href="https://github.com/maxhaag/eurlex-legal-acts-statistics" target="_blank">GitHub Repository</a></p>
+        </div>
+        <div class="main-content">
+            <iframe id="stats-frame" src="" style="display:none;"></iframe>
+            <div id="no-selection" class="loading">
+                <h2>EU Legislative Acts Statistics</h2>
+                <p>Select a report from the sidebar to view detailed statistics.</p>
+                
+                {% if stats_files and stats_files|length > 0 %}
+                <p>Latest report: <a href="#{{ stats_files[0].id }}" class="stats-link" data-src="{{ stats_files[0].path }}">{{ stats_files[0].title }}</a></p>
+                {% endif %}
+                
+                <p>This project collects and visualizes statistics about EU legislative acts from the official EUR-Lex website. The data is updated monthly.</p>
+                
+                <h3>About the Data</h3>
+                <p>The statistics show the number of basic and amending legislative acts by category and type. The data is extracted from the <a href="https://eur-lex.europa.eu/statistics/legislative-acts-statistics.html" target="_blank">EUR-Lex statistics page</a>.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const frame = document.getElementById('stats-frame');
+            const noSelection = document.getElementById('no-selection');
+            const links = document.querySelectorAll('.stats-link');
+            
+            // Handle link clicks
+            links.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const src = this.getAttribute('data-src');
+                    frame.src = src;
+                    frame.style.display = 'block';
+                    noSelection.style.display = 'none';
+                    
+                    // Update URL hash
+                    window.location.hash = this.getAttribute('href');
+                    
+                    // Mark current as active
+                    links.forEach(l => l.classList.remove('current'));
+                    this.classList.add('current');
+                });
+            });
+            
+            // Handle URL hash on load
+            function handleHash() {
+                const hash = window.location.hash;
+                if(hash && hash.length > 1) {
+                    const targetLink = document.querySelector(`a[href="${hash}"]`);
+                    if(targetLink) {
+                        targetLink.click();
+                    }
+                } else if(links.length > 0) {
+                    // Load first report by default
+                    links[0].click();
+                }
+            }
+            
+            handleHash();
+            window.addEventListener('hashchange', handleHash);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Legislative Acts Data</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; line-height: 1.6; }
+        .container { display: flex; height: 100vh; }
+        .sidebar { width: 250px; background-color: #f8f9fa; padding: 20px; overflow-y: auto; }
+        .main-content { flex-grow: 1; padding: 20px; overflow-y: auto; }
+        .sidebar h2 { margin-top: 0; }
+        .sidebar ul { padding-left: 0; list-style-type: none; }
+        .sidebar li { margin-bottom: 8px; }
+        .sidebar a { text-decoration: none; color: #007bff; }
+        .sidebar a:hover { text-decoration: underline; }
+        .current { font-weight: bold; }
+        iframe { width: 100%; height: 100%; border: none; }
+        .loading { text-align: center; padding: 50px; }
+        .doi-badge { display: inline-block; font-size: 0.8em; background: #f1f8ff; padding: 1px 6px; 
+                    border-radius: 3px; border: 1px solid #c8e1ff; color: #0366d6; margin-left: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <h2>Legislative Acts Statistics</h2>
+            <p>Monthly statistics of EU legislative acts.</p>
+            <h3>Available Reports</h3>
+            <ul id="stats-list">
+                <li class="loading">Loading reports...</li>
+            </ul>
+            <p><a href="https://github.com/maxhaag/eurlex-legal-acts-statistics" target="_blank">GitHub Repository</a></p>
+        </div>
+        <div class="main-content">
+            <div class="loading">
+                <h2>Loading statistics...</h2>
+                <p>Please wait while we load the latest statistics.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // This page will be dynamically updated by generate_stats_pages.py
+        // Please run the script to generate the statistics pages
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if stats_pages directory exists
+            fetch('./stats_pages/').then(response => {
+                if (response.ok) {
+                    return response.text();
+                } else {
+                    document.querySelector('.main-content').innerHTML = `
+                        <div class="loading">
+                            <h2>No statistics available</h2>
+                            <p>Please run the generate_stats_pages.py script to generate statistics.</p>
+                        </div>
+                    `;
+                    document.getElementById('stats-list').innerHTML = `
+                        <li>No reports available yet</li>
+                    `;
+                }
+            }).catch(error => {
+                console.error('Error loading stats:', error);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,5 +1,5 @@
 
-# Legislative Acts Data Project
+# EUR-Lex Legal Acts Statistics
 
 This project parses [legal acts statistics from EUR-Lex](https://eur-lex.europa.eu/statistics/legislative-acts-statistics.html)[^1] and provides monthly updated CSV files with visualized statistics pages.
 

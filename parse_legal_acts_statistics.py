@@ -3,6 +3,7 @@ import argparse
 import os
 import requests
 import json
+import shutil
 from io import StringIO
 from datetime import datetime
 
@@ -32,9 +33,13 @@ def parse_csv(input_path, output_path, generate_doi=False, zenodo_token=None, sa
     # Record parsing timestamp
     parsing_timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     
+    raw_csv_filename = None
     if input_path.startswith('http://') or input_path.startswith('https://'):
         response = requests.get(input_path)
         response.raise_for_status()
+        raw_csv_filename = output_path.replace('.csv', '_raw.csv')
+        with open(raw_csv_filename, 'w') as raw_f:
+            raw_f.write(response.text)
         df_raw = pd.read_csv(StringIO(response.text), header=None)
     else:
         df_raw = pd.read_csv(input_path, header=None)
@@ -93,6 +98,11 @@ def parse_csv(input_path, output_path, generate_doi=False, zenodo_token=None, sa
     # Save to output path
     df_final.to_csv(output_path, index=False)
     
+    parsing_code_filename = None
+    if include_parsing_code and os.path.exists(parsing_code_path):
+        parsing_code_filename = output_path.replace('.csv', '_parsecode.py')
+        shutil.copyfile(parsing_code_path, parsing_code_filename)
+    
     # Generate DOI if requested
     doi_info = None
     if generate_doi:
@@ -138,6 +148,11 @@ def parse_csv(input_path, output_path, generate_doi=False, zenodo_token=None, sa
             
             # Add parsing timestamp to the metadata file
             doi_info['parsing_timestamp'] = parsing_timestamp
+            
+            if raw_csv_filename:
+                doi_info['raw_csv_filename'] = os.path.basename(raw_csv_filename)
+            if parsing_code_filename:
+                doi_info['parsing_code_filename'] = os.path.basename(parsing_code_filename)
             
             with open(metadata_path, 'w') as f:
                 json.dump(doi_info, f, indent=2)

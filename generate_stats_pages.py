@@ -30,6 +30,9 @@ def generate_stats_page(csv_path, output_dir):
             if not parsing_timestamp and 'parsing_timestamp' in doi_info:
                 parsing_timestamp = doi_info['parsing_timestamp']
     
+    raw_csv_filename = doi_info.get('raw_csv_filename') if doi_info else None
+    parsing_code_filename = doi_info.get('parsing_code_filename') if doi_info else None
+
     # Extract date from filename (new format with only parsing date)
     # Handle format: eurlex_legal_acts_statistics_YYYYMMDD.csv
     date_match = re.search(r'eurlex_legal_acts_statistics_(\d{8})', base_name)
@@ -110,7 +113,8 @@ def generate_stats_page(csv_path, output_dir):
         detailed_stats=detailed_stats,
         doi_info=doi_info,
         csv_filename=filename,
-        parsing_timestamp=parsing_timestamp,
+        raw_csv_filename=raw_csv_filename,
+        parsing_code_filename=parsing_code_filename,
         data_explanation="This dataset contains cumulative statistics of all EU legislative acts available in EUR-Lex at the time of parsing. The data represents the total number of acts, not just those from a specific period.",
         commit_version=commit_version
     )

@@ -1,8 +1,7 @@
-
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Legislative Acts Data</title>
+    <title>EUR-Lex legislative act statistics</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
@@ -21,32 +20,40 @@
         .doi-link:hover { text-decoration: underline; }
         .doi-badge { display: inline-block; font-size: 0.8em; background: #f1f8ff; padding: 1px 6px; 
                     border-radius: 3px; border: 1px solid #c8e1ff; color: #0366d6; margin-left: 5px; }
+        .download-all { margin-top: 20px; padding-top: 15px; border-top: 1px solid #ddd; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="sidebar">
-            <h2>Legislative Acts Statistics</h2>
-            <p>Monthly statistics of EU legislative acts.</p>
+            <h2>EUR-Lex legal act statistics</h2>
+            <p>Monthly statistics of EU legislative acts parsed from the <a href="https://eur-lex.europa.eu/statistics/legislative-acts-statistics.html">EUR-Lex legal act statistics page</a> CSV export.</p>
             <h3>Available Reports</h3>
             <ul id="stats-list">
-                
+                {% for file in stats_files %}
                 <li>
-                    <a href="#eurlex_legal_acts_statistics_2025_03" class="stats-link" data-src="eurlex_legal_acts_statistics_2025_03.html">Legislative Acts Statistics - March 2025</a>
-                    
+                    <a href="#{{ file.id }}" class="stats-link" data-src="{{ file.path }}">{{ file.title }}</a>
+                    {% if file.doi %}
+                    <span class="doi-badge">DOI</span>
+                    {% endif %}
                 </li>
-                
+                {% endfor %}
             </ul>
-            <p><a href="https://github.com/maxhaag/eurlex-legal-acts-statistics" target="_blank">GitHub Repository</a></p>
+            <div class="download-all">
+                <h3>Data Access</h3>
+                <p><a href="cache/" target="_blank">Browse all CSV files</a></p>
+                <p><a href="https://github.com/ghxm/eurlex-legal-acts-statistics" target="_blank">GitHub Repository</a></p>
+            </div>
         </div>
         <div class="main-content">
             <iframe id="stats-frame" src="" style="display:none;"></iframe>
             <div id="no-selection" class="loading">
                 <h2>EU Legislative Acts Statistics</h2>
                 <p>Select a report from the sidebar to view detailed statistics.</p>
-                
-                <p>Latest report: <a href="#eurlex_legal_acts_statistics_2025_03" class="stats-link" data-src="eurlex_legal_acts_statistics_2025_03.html">Legislative Acts Statistics - March 2025</a></p>
-                
+                {% if latest_file %}
+                <p>Latest report: <a href="#{{ latest_file.id }}" class="stats-link" data-src="{{ latest_file.path }}">{{ latest_file.title }}</a></p>
+                {% endif %}
+                <p>Want to analyze the data yourself? <a href="cache/">Browse all CSV files</a> for download.</p>
             </div>
         </div>
     </div>

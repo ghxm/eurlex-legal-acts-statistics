@@ -11,71 +11,138 @@ permissions:
   pages: write
   id-token: write
 
-# Environment for GitHub Pages
+# Define workflow jobs
 jobs:
-  update-data:
+  setup:
+    name: 🔧 Setup Environment
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install pandas requests jinja2
+
+      - name: Cache repository
+        uses: actions/cache@v3
+        with:
+          path: .
+          key: repo-${{ github.sha }}
+
+  parse-data:
+    name: 📊 Parse Data
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Restore cached repository
+        uses: actions/cache@v3
+        with:
+          path: .
+          key: repo-${{ github.sha }}
+
+      - name: Create cache directory
+        run: mkdir -p cache
+
+      - name: Parse EUR-Lex data
+        run: |
+          python parse_legal_acts_statistics.py --input "https://eur-lex.europa.eu/export-statistics-all.html?callingUrl=%2Fstatistics%2Flegislative-acts-statistics.html&statisticsType=LEGISLATIVE_ACTS" --output "cache/eurlex_legal_acts_statistics_$(date +'%Y_%m').csv" ${{ secrets.ZENODO_TOKEN && '--generate-doi --zenodo-token "${{ secrets.ZENODO_TOKEN }}"' || '' }} ${{ secrets.ZENODO_AUTHORS && '--authors "${{ secrets.ZENODO_AUTHORS }}"' || '' }} ${{ secrets.ZENODO_DESCRIPTION && '--description "${{ secrets.ZENODO_DESCRIPTION }}"' || '' }} ${{ secrets.ZENODO_TITLE && '--title "${{ secrets.ZENODO_TITLE }}"' || '' }} ${{ secrets.ZENODO_KEYWORDS && '--keywords "${{ secrets.ZENODO_KEYWORDS }}"' || '' }} ${{ secrets.ZENODO_LICENSE && '--license "${{ secrets.ZENODO_LICENSE }}"' || '' }}
+
+      - name: Cache parsed data
+        uses: actions/cache@v3
+        with:
+          path: |
+            .
+            cache
+          key: repo-with-data-${{ github.sha }}
+
+  generate-website:
+    name: 🌐 Create Website
+    needs: parse-data
+    runs-on: ubuntu-latest
+    steps:
+      - name: Restore cached repository and data
+        uses: actions/cache@v3
+        with:
+          path: |
+            .
+            cache
+          key: repo-with-data-${{ github.sha }}
+
+      - name: Create stats pages directory
+        run: mkdir -p stats_pages
+
+      - name: Generate statistics pages
+        run: |
+          python generate_stats_pages.py --input cache --output stats_pages
+
+      - name: Cache website files
+        uses: actions/cache@v3
+        with:
+          path: |
+            .
+            cache
+            stats_pages
+            index.html
+          key: repo-with-website-${{ github.sha }}
+
+  commit-changes:
+    name: 💾 Save Changes
+    needs: generate-website
+    runs-on: ubuntu-latest
+    steps:
+      - name: Restore cached repository and website
+        uses: actions/cache@v3
+        with:
+          path: |
+            .
+            cache
+            stats_pages
+            index.html
+          key: repo-with-website-${{ github.sha }}
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+
+      - name: Commit and push changes
+        run: |
+          git add cache stats_pages index.html
+          git commit -m "Update legal acts data and statistics pages" || echo "No changes to commit"
+          git push
+
+  deploy-pages:
+    name: 🚀 Deploy to GitHub Pages
+    needs: commit-changes
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-    - name: 🔧 Setup Environment
-      run: echo "::group::Setup Environment"
+      - name: Restore cached repository and website
+        uses: actions/cache@v3
+        with:
+          path: |
+            .
+            cache
+            stats_pages
+            index.html
+          key: repo-with-website-${{ github.sha }}
 
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.11'
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
 
-    - name: Install dependencies
-      run: |
-        pip install pandas requests jinja2
-        echo "::endgroup::"
-
-    - name: 📊 Parse Data
-      run: |
-        echo "::group::Parse Data"
-        mkdir -p cache
-        python parse_legal_acts_statistics.py --input "https://eur-lex.europa.eu/export-statistics-all.html?callingUrl=%2Fstatistics%2Flegislative-acts-statistics.html&statisticsType=LEGISLATIVE_ACTS" --output "cache/eurlex_legal_acts_statistics_$(date +'%Y_%m').csv" ${{ secrets.ZENODO_TOKEN && '--generate-doi --zenodo-token "${{ secrets.ZENODO_TOKEN }}"' || '' }} ${{ secrets.ZENODO_AUTHORS && '--authors "${{ secrets.ZENODO_AUTHORS }}"' || '' }} ${{ secrets.ZENODO_DESCRIPTION && '--description "${{ secrets.ZENODO_DESCRIPTION }}"' || '' }} ${{ secrets.ZENODO_TITLE && '--title "${{ secrets.ZENODO_TITLE }}"' || '' }} ${{ secrets.ZENODO_KEYWORDS && '--keywords "${{ secrets.ZENODO_KEYWORDS }}"' || '' }} ${{ secrets.ZENODO_LICENSE && '--license "${{ secrets.ZENODO_LICENSE }}"' || '' }}
-        echo "::endgroup::"
-
-    - name: 🌐 Create Website
-      run: |
-        echo "::group::Generate Statistics Pages"
-        mkdir -p stats_pages
-        python generate_stats_pages.py --input cache --output stats_pages
-        echo "::endgroup::"
-
-    - name: 💾 Save Changes
-      run: |
-        echo "::group::Commit Changes"
-        git config --global user.name "GitHub Actions"
-        git config --global user.email "actions@github.com"
-        git add cache stats_pages index.html
-        git commit -m "Update legal acts data and statistics pages" || echo "No changes to commit"
-        git push
-        echo "::endgroup::"
-
-    - name: 🚀 Deploy to GitHub Pages
-      run: |
-        echo "::group::Deploy to GitHub Pages"
-        
-    # Configure GitHub Pages
-    - name: Setup Pages
-      uses: actions/configure-pages@v4
-
-    # Upload artifacts for GitHub Pages
-    - name: Upload Pages artifact
-      uses: actions/upload-pages-artifact@v3
-      with:
-        path: '.'
-
-    # Deploy to GitHub Pages
-    - name: Deploy to GitHub Pages
-      id: deployment
-      uses: actions/deploy-pages@v4
-      
-    - run: echo "::endgroup::"
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

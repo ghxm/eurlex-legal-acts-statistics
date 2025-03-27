@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ title }}</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.6; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        h1, h2, h3 { color: #333; }
+        .summary { background-color: #f0f8ff; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
+        .back-link { margin-bottom: 20px; }
+        .citation { background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin-top: 20px; }
+        .citation pre { overflow-x: auto; background: #eee; padding: 10px; border-radius: 3px; }
+        .download-section { background-color: #e6f7ff; padding: 15px; border-radius: 5px; margin: 20px 0; }
+        .download-link { display: inline-block; background-color: #4CAF50; color: white; padding: 10px 15px; 
+                         text-decoration: none; border-radius: 4px; margin-top: 10px; }
+        .download-link:hover { background-color: #45a049; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="back-link">
+            <a href="../index.html">← Back to main page</a>
+        </div>
+        
+        <h1>{{ title }}</h1>
+        <p>Data for: {{ period }}</p>
+        
+        <div class="download-section">
+            <h2>Download Data</h2>
+            <p>Download the raw data in CSV format for your own analysis:</p>
+            <a href="../cache/{{ csv_filename }}" class="download-link" download>Download CSV Data</a>
+        </div>
+        
+        {% if doi_info %}
+        <div class="citation">
+            <h2>Citation Information</h2>
+            <p><strong>DOI:</strong> <a href="https://doi.org/{{ doi_info.doi }}" target="_blank">{{ doi_info.doi }}</a></p>
+            
+            <h3>APA Format</h3>
+            <p>{{ doi_info.apa }}</p>
+            
+            <h3>MLA Format</h3>
+            <p>{{ doi_info.mla }}</p>
+            
+            <h3>BibTeX</h3>
+            <pre>{{ doi_info.bibtex }}</pre>
+        </div>
+        {% endif %}
+        
+        <div class="summary">
+            <h2>Summary Statistics</h2>
+            <p>Total number of acts: {{ total_acts }}</p>
+            <p>Basic acts: {{ basic_acts }}</p>
+            <p>Amending acts: {{ amending_acts }}</p>
+        </div>
+        
+        <h2>Statistics by Year</h2>
+        <table>
+            <tr>
+                <th>Year</th>
+                <th>Basic Acts</th>
+                <th>Amending Acts</th>
+                <th>Total</th>
+            </tr>
+            {% for year, data in yearly_stats.items() %}
+            <tr>
+                <td>{{ year }}</td>
+                <td>{{ data['basic'] }}</td>
+                <td>{{ data['amending'] }}</td>
+                <td>{{ data['total'] }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        
+        <h2>Statistics by Category</h2>
+        <table>
+            <tr>
+                <th>Category</th>
+                <th>Basic Acts</th>
+                <th>Amending Acts</th>
+                <th>Total</th>
+            </tr>
+            {% for category, data in category_stats.items() %}
+            <tr>
+                <td>{{ category }}</td>
+                <td>{{ data['basic'] }}</td>
+                <td>{{ data['amending'] }}</td>
+                <td>{{ data['total'] }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        
+        <h2>Detailed Statistics</h2>
+        <table>
+            <tr>
+                <th>Category</th>
+                <th>Act Type</th>
+                <th>Basic</th>
+                <th>Amending</th>
+                <th>Total</th>
+            </tr>
+            {% for category, types in detailed_stats.items() %}
+                {% for act_type, counts in types.items() %}
+                <tr>
+                    <td>{{ category }}</td>
+                    <td>{{ act_type }}</td>
+                    <td>{{ counts['basic'] }}</td>
+                    <td>{{ counts['amending'] }}</td>
+                    <td>{{ counts['total'] }}</td>
+                </tr>
+                {% endfor %}
+            {% endfor %}
+        </table>
+    </div>
+</body>
+</html>

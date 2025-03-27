@@ -8,6 +8,9 @@ This project parses [legal acts statistics from EUR-Lex](https://eur-lex.europa.
 > [!NOTE]
 > While this project also has a useful purpose, it is mainly used to explore the automated data collection and processing. The project is not affiliated with EUR-Lex or the European Union.
 
+> [!WARNING]
+> A lot of the code here has been created using the GitHub Copilot Edits feature. The code is not perfect and may contain bugs. Please report any issues you find.
+
 
 ## Setup
 

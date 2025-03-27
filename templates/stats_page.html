@@ -59,12 +59,12 @@
         <div class="download-section">
             <h2>Download Data</h2>
             <p>Download the raw data in CSV format for your own analysis:</p>
-            <a href="../cache/{{ csv_filename }}" class="download-link" download>Download Processed CSV</a>
+            <a href="../cache/{{ base_name }}/{{ base_name }}.csv" class="download-link" download>Download Processed CSV</a>
             {% if raw_csv_filename %}
-            <br><a href="../cache/{{ raw_csv_filename }}" class="download-link" download>Download Original CSV</a>
+            <br><a href="../cache/{{ base_name }}/{{ base_name }}_raw.csv" class="download-link" download>Download Original CSV</a>
             {% endif %}
             {% if parsing_code_filename %}
-            <br><a href="../cache/{{ parsing_code_filename }}" class="download-link" download>Download Parsing Code Used</a>
+            <br><a href="../cache/{{ base_name }}/{{ base_name }}_parsecode.py" class="download-link" download>Download Parsing Code Used</a>
             {% endif %}
         </div>
         

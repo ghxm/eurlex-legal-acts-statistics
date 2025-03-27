@@ -72,8 +72,8 @@ def generate_stats_page(csv_path, output_dir):
         title = f"EUR-Lex legislative act statistics - {base_name}"
         period = base_name
         
-    if parsing_timestamp and "Parsed:" not in title:
-        title += f" - Parsed: {parsing_timestamp}"
+    if parsing_timestamp and "Parsed:" in title:
+        title = title.replace(" - Parsed: " + str(parsing_timestamp), "")
     
     # Calculate summary statistics
     total_acts = df['count'].sum()
@@ -130,6 +130,7 @@ def generate_stats_page(csv_path, output_dir):
         csv_filename=filename,
         raw_csv_filename=raw_csv_filename,
         parsing_code_filename=parsing_code_filename,
+        base_name=base_name,
         data_explanation="This dataset contains cumulative statistics of all EU legislative acts available in EUR-Lex at the time of parsing. The data represents the total number of acts, not just those from a specific period.",
         commit_version=commit_version,
         git_repository=git_repository

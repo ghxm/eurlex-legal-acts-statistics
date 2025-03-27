@@ -262,7 +262,7 @@ def main():
         # Extract directory and base name
         output_dir = os.path.dirname(args.output)
         # Replace with new naming pattern using only parsing date
-        new_output = os.path.join(output_dir, f"eurlex_legal_acts_statistics_{current_date}.csv")
+        new_output = os.path.join(output_dir, f"{current_date}.csv")
         args.output = new_output
 
     # Prepare metadata dictionary
@@ -297,3 +297,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

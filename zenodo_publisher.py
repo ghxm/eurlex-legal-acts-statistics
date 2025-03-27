@@ -23,7 +23,7 @@ class ZenodoPublisher:
         self.headers = {"Content-Type": "application/json", "Authorization": f"Bearer {self.token}"}
     
     def create_or_update_deposit(self, csv_path, dataset_date, metadata=None,
-                                 parsing_timestamp=None, code_path=None):
+                                 parsing_timestamp=None, code_path=None, raw_csv_path=None):
         """
         Create a new deposit or update an existing one on Zenodo.
         
@@ -33,6 +33,7 @@ class ZenodoPublisher:
             metadata (dict): Additional metadata for the deposit
             parsing_timestamp (str): Timestamp when the data was parsed
             code_path (str): Path to the code file to upload
+            raw_csv_path (str): Path to the raw CSV file to upload
 
         Returns:
             str: DOI for the deposit
@@ -88,6 +89,17 @@ class ZenodoPublisher:
                 r = requests.put(
                     f"{bucket_url}/{filename}",
                     headers={"Authorization": f"Bearer {self.token}"},
+                    data=file
+                )
+                r.raise_for_status()
+
+        # Upload the raw CSV file if provided
+        if raw_csv_path and os.path.exists(raw_csv_path):
+            with open(raw_csv_path, "rb") as file:
+                filename = os.path.basename(raw_csv_path)
+                r = requests.put(
+                    f"{bucket_url}/{filename}",
+                    headers={"Authorization": f'Bearer {self.token}'},
                     data=file
                 )
                 r.raise_for_status()

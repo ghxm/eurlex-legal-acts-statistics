@@ -137,7 +137,8 @@ def parse_csv(input_path, output_path, generate_doi=False, zenodo_token=None, sa
                 dataset_date=date_match,
                 metadata=metadata,
                 parsing_timestamp=parsing_timestamp,
-                code_path=parsing_code_path if include_parsing_code else None
+                code_path=parsing_code_filename if include_parsing_code else None,
+                raw_csv_path=raw_csv_filename if raw_csv_filename else None
             )
             
             # Generate citation information
@@ -199,7 +200,11 @@ def parse_csv(input_path, output_path, generate_doi=False, zenodo_token=None, sa
                 csv_path=output_path,
                 title=title,
                 body=body,
-                doi=doi_info['doi'] if doi_info else None
+                doi=doi_info['doi'] if doi_info else None,
+                additional_files=[
+                    raw_csv_filename,
+                    parsing_code_filename
+                ] if raw_csv_filename or parsing_code_filename else None
             )
             
             print(f"GitHub Release created: {release_data['html_url']}")

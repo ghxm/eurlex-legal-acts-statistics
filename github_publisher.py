@@ -40,7 +40,7 @@ class GitHubPublisher:
             "X-GitHub-Api-Version": "2022-11-28"
         }
     
-    def create_release(self, tag_name, csv_path=None, title=None, body=None, draft=False, prerelease=False, doi=None):
+    def create_release(self, tag_name, csv_path=None, title=None, body=None, draft=False, prerelease=False, doi=None, additional_files=None):
         """
         Create a new GitHub release for a dataset.
         
@@ -52,6 +52,7 @@ class GitHubPublisher:
             draft (bool): Whether this is a draft release
             prerelease (bool): Whether this is a pre-release
             doi (str, optional): DOI to include in release notes
+            additional_files (list, optional): List of additional file paths to attach to the release
             
         Returns:
             dict: Release data from GitHub API
@@ -87,6 +88,11 @@ class GitHubPublisher:
         # Upload asset if provided
         if csv_path and os.path.exists(csv_path):
             self._upload_asset(release_data["upload_url"], csv_path)
+        
+        if additional_files:
+            for f in additional_files:
+                if f and os.path.exists(f):
+                    self._upload_asset(release_data["upload_url"], f)
         
         return release_data
     

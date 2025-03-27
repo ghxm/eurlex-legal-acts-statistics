@@ -35,7 +35,7 @@ def generate_stats_page(csv_path, output_dir):
 
     # Extract date from filename (new format with only parsing date)
     # Handle format: eurlex_legal_acts_statistics_YYYYMMDD.csv
-    date_match = re.search(r'eurlex_legal_acts_statistics_(\d{8})', base_name)
+    date_match = re.search(r'eurlex_legal_acts_statistics_(\d{8}(?:_\d{6})?)', base_name)
     
     commit_version = os.getenv("GITHUB_SHA", "unknown commit")
     
@@ -44,13 +44,17 @@ def generate_stats_page(csv_path, output_dir):
         parsing_date_formatted = None
         # Format the parsing date
         try:
-            parsing_date = datetime.strptime(parsing_date_str, '%Y%m%d')
-            parsing_date_formatted = parsing_date.strftime('%Y-%m-%d')
-            title = f"EUR-Lex legislative act statistics - {parsing_date_formatted if 'parsing_date_formatted' in locals() else parsing_date_str}"
+            if '_' in parsing_date_str:
+                parsing_date = datetime.strptime(parsing_date_str, '%Y%m%d_%H%M%S')
+                parsing_date_formatted = parsing_date.strftime('%Y-%m-%d %H:%M:%S')
+            else:
+                parsing_date = datetime.strptime(parsing_date_str, '%Y%m%d')
+                parsing_date_formatted = parsing_date.strftime('%Y-%m-%d')
+            title = f"EUR-Lex legislative act statistics - {parsing_date_formatted}"
         except:
             title = f"EUR-Lex legislative act statistics - {parsing_date_str}"
         
-        period = f"Snapshot: {parsing_date_formatted if 'parsing_date' in locals() else parsing_date_str}"
+        period = f"Snapshot: {parsing_date_formatted if 'parsing_date_formatted' in locals() else parsing_date_str}"
 
     else:
 

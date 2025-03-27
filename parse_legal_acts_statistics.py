@@ -42,6 +42,9 @@ def parse_csv(input_path, output_path, generate_doi=False, zenodo_token=None, sa
             raw_f.write(response.text)
         df_raw = pd.read_csv(StringIO(response.text), header=None)
     else:
+        raw_csv_filename = output_path.replace('.csv', '_raw.csv')
+        import shutil
+        shutil.copyfile(input_path, raw_csv_filename)
         df_raw = pd.read_csv(input_path, header=None)
 
     data = []
@@ -246,7 +249,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Get current date for filename
-    current_date = datetime.now().strftime('%Y%m%d')
+    current_date = datetime.now().strftime('%Y%m%d_%H%M%S')
     
     # Update output path to use only parsing date
     if args.output:

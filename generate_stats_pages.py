@@ -59,10 +59,65 @@ def generate_stats_page(csv_path, output_dir):
         period = base_name
     
     # Calculate summary statistics
-    # ... existing code ...
+    total_acts = df['count'].sum()
+    basic_acts = df[df['type'] == 'basic']['count'].sum()
+    amending_acts = df[df['type'] == 'amending']['count'].sum()
+    
+    # Calculate yearly statistics
+    yearly_stats = {}
+    for year in df['year'].unique():
+        year_df = df[df['year'] == year]
+        yearly_stats[year] = {
+            'basic': year_df[year_df['type'] == 'basic']['count'].sum(),
+            'amending': year_df[year_df['type'] == 'amending']['count'].sum(),
+            'total': year_df['count'].sum()
+        }
+    
+    # Calculate category statistics
+    category_stats = {}
+    for category in df['category'].unique():
+        cat_df = df[df['category'] == category]
+        category_stats[category] = {
+            'basic': cat_df[cat_df['type'] == 'basic']['count'].sum(),
+            'amending': cat_df[cat_df['type'] == 'amending']['count'].sum(),
+            'total': cat_df['count'].sum()
+        }
+    
+    # Calculate detailed statistics
+    detailed_stats = {}
+    for category in df['category'].unique():
+        detailed_stats[category] = {}
+        cat_df = df[df['category'] == category]
+        for act_type in cat_df['act_type'].unique():
+            act_df = cat_df[cat_df['act_type'] == act_type]
+            detailed_stats[category][act_type] = {
+                'basic': act_df[act_df['type'] == 'basic']['count'].sum(),
+                'amending': act_df[act_df['type'] == 'amending']['count'].sum(),
+                'total': act_df['count'].sum()
+            }
     
     # Load and render the template with better template path handling
-    # ... existing code ...
+    env = Environment(loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), 'templates')))
+    template = env.get_template('stats_page.html')
+    
+    html = template.render(
+        title=title,
+        period=period,
+        total_acts=total_acts,
+        basic_acts=basic_acts,
+        amending_acts=amending_acts,
+        yearly_stats=yearly_stats,
+        category_stats=category_stats,
+        detailed_stats=detailed_stats,
+        doi_info=doi_info,
+        csv_filename=filename,
+        parsing_timestamp=parsing_timestamp
+    )
+    
+    # Write to HTML file
+    output_filename = os.path.join(output_dir, f"{base_name}.html")
+    with open(output_filename, 'w') as f:
+        f.write(html)
     
     return {
         'id': base_name,
@@ -88,4 +143,54 @@ def generate_index_page(stats_files, output_dir):
         reverse=True
     )
     
-    # ... existing code ...
+    # Load the template
+    env = Environment(loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), 'templates')))
+    template = env.get_template('index.html')
+    
+    # Render the template
+    html = template.render(stats_files=sorted_files)
+    
+    # Write to HTML file
+    output_filename = os.path.join(output_dir, 'index.html')
+    with open(output_filename, 'w') as f:
+        f.write(html)
+    
+    # Also write to project root for GitHub Pages
+    root_index_path = os.path.join(os.path.dirname(__file__), 'index.html')
+    with open(root_index_path, 'w') as f:
+        f.write(html)
+    
+    return output_filename
+
+def main():
+    """Main function to generate all statistics pages."""
+    parser = argparse.ArgumentParser(description='Generate statistics pages from CSV files.')
+    parser.add_argument('--input', '-i', default='cache', help='Directory containing CSV files')
+    parser.add_argument('--output', '-o', default='stats_pages', help='Directory for output HTML files')
+    args = parser.parse_args()
+    
+    # Create output directory if it doesn't exist
+    os.makedirs(args.output, exist_ok=True)
+    
+    # Find all CSV files
+    csv_files = glob.glob(os.path.join(args.input, '*.csv'))
+    
+    # Filter out metadata files
+    csv_files = [f for f in csv_files if not f.endswith('_metadata.csv')]
+    
+    # Generate a stats page for each CSV file
+    stats_files = []
+    for csv_file in csv_files:
+        try:
+            stats_file = generate_stats_page(csv_file, args.output)
+            stats_files.append(stats_file)
+            print(f"Generated stats page for {csv_file}")
+        except Exception as e:
+            print(f"Error generating stats page for {csv_file}: {e}")
+    
+    # Generate the index page
+    index_path = generate_index_page(stats_files, args.output)
+    print(f"Generated index page at {index_path}")
+
+if __name__ == '__main__':
+    main()

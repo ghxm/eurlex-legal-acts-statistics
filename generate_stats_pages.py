@@ -48,6 +48,7 @@ def generate_stats_page(csv_path, output_dir):
     date_match = re.search(r'eurlex_legal_acts_statistics_(\d{8}(?:_\d{6})?)', base_name)
     
     commit_version = os.getenv("GITHUB_SHA", "unknown commit")
+    git_repository = os.getenv("GITHUB_REPOSITORY", "unknown/repo")
     
     if date_match:
         parsing_date_str = date_match.group(1)
@@ -130,7 +131,8 @@ def generate_stats_page(csv_path, output_dir):
         raw_csv_filename=raw_csv_filename,
         parsing_code_filename=parsing_code_filename,
         data_explanation="This dataset contains cumulative statistics of all EU legislative acts available in EUR-Lex at the time of parsing. The data represents the total number of acts, not just those from a specific period.",
-        commit_version=commit_version
+        commit_version=commit_version,
+        git_repository=git_repository
     )
     
     # Write to HTML file
@@ -193,7 +195,7 @@ def main():
     os.makedirs(args.output, exist_ok=True)
     
     # Find all CSV files
-    csv_files = glob.glob(os.path.join(args.input, '*.csv'))
+    csv_files = glob.glob(os.path.join(args.input, '**', '*.csv'), recursive=True)
     
     # Filter out metadata files
     csv_files = [f for f in csv_files if not f.endswith('_metadata.csv')]

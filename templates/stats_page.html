@@ -46,7 +46,13 @@
         
         {% if commit_version %}
         <div style="background-color: #fffde7; padding: 10px; margin-bottom: 20px; border-radius: 5px;">
-            <p><strong>Commit version:</strong> {{ commit_version }}</p>
+            {% if commit_version and commit_version != "unknown commit" and git_repository and git_repository != "unknown/repo" %}
+                <p><strong>Commit version:</strong> 
+                   <a href="https://github.com/{{ git_repository }}/commit/{{ commit_version }}" target="_blank">{{ commit_version }}</a>
+                </p>
+            {% else %}
+                <p><strong>Commit version:</strong> {{ commit_version }}</p>
+            {% endif %}
         </div>
         {% endif %}
         

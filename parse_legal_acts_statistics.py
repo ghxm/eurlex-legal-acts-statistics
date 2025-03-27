@@ -33,17 +33,24 @@ def parse_csv(input_path, output_path, generate_doi=False, zenodo_token=None, sa
     # Record parsing timestamp
     parsing_timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     
-    raw_csv_filename = None
+    # Create subfolder for this dataset
+    folder_name = os.path.splitext(os.path.basename(output_path))[0]
+    parent_dir = os.path.dirname(os.path.abspath(output_path))
+    dataset_dir = os.path.join(parent_dir, folder_name)
+    os.makedirs(dataset_dir, exist_ok=True)
+
+    # Store final CSV, raw CSV, parse code, and metadata in this subfolder
+    final_csv_filename = os.path.join(dataset_dir, folder_name + ".csv")
+    raw_csv_filename = os.path.join(dataset_dir, folder_name + "_raw.csv")
+    parsing_code_filename = None
+
     if input_path.startswith('http://') or input_path.startswith('https://'):
         response = requests.get(input_path)
         response.raise_for_status()
-        raw_csv_filename = output_path.replace('.csv', '_raw.csv')
         with open(raw_csv_filename, 'w') as raw_f:
             raw_f.write(response.text)
         df_raw = pd.read_csv(StringIO(response.text), header=None)
     else:
-        raw_csv_filename = output_path.replace('.csv', '_raw.csv')
-        import shutil
         shutil.copyfile(input_path, raw_csv_filename)
         df_raw = pd.read_csv(input_path, header=None)
 
@@ -99,11 +106,10 @@ def parse_csv(input_path, output_path, generate_doi=False, zenodo_token=None, sa
     os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
     
     # Save to output path
-    df_final.to_csv(output_path, index=False)
+    df_final.to_csv(final_csv_filename, index=False)
     
-    parsing_code_filename = None
     if include_parsing_code and os.path.exists(parsing_code_path):
-        parsing_code_filename = output_path.replace('.csv', '_parsecode.py')
+        parsing_code_filename = os.path.join(dataset_dir, folder_name + "_parsecode.py")
         shutil.copyfile(parsing_code_path, parsing_code_filename)
     
     # Generate DOI if requested
@@ -136,7 +142,7 @@ def parse_csv(input_path, output_path, generate_doi=False, zenodo_token=None, sa
             # Create publisher and publish dataset
             publisher = ZenodoPublisher(token=zenodo_token, sandbox=sandbox)
             doi = publisher.create_or_update_deposit(
-                csv_path=output_path,
+                csv_path=final_csv_filename,
                 dataset_date=date_match,
                 metadata=metadata,
                 parsing_timestamp=parsing_timestamp,
@@ -148,7 +154,7 @@ def parse_csv(input_path, output_path, generate_doi=False, zenodo_token=None, sa
             doi_info = publisher.generate_citation(doi)
             
             # Save DOI info to metadata file alongside the CSV
-            metadata_path = output_path.replace('.csv', '_metadata.json')
+            metadata_path = os.path.join(dataset_dir, folder_name + "_metadata.json")
             
             # Add parsing timestamp to the metadata file
             doi_info['parsing_timestamp'] = parsing_timestamp
@@ -200,7 +206,7 @@ def parse_csv(input_path, output_path, generate_doi=False, zenodo_token=None, sa
             # Create the GitHub release (including DOI if available)
             release_data = publisher.create_release(
                 tag_name=tag_name,
-                csv_path=output_path,
+                csv_path=final_csv_filename,
                 title=title,
                 body=body,
                 doi=doi_info['doi'] if doi_info else None,
@@ -217,7 +223,7 @@ def parse_csv(input_path, output_path, generate_doi=False, zenodo_token=None, sa
     # Return both DOI info and parsing timestamp
     return doi_info, parsing_timestamp
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(description='Parse legislative acts CSV file from local file or URL.')
     
     # Input and output options
@@ -289,3 +295,5 @@ if __name__ == "__main__":
     print(f"Parsed data from {args.input} and saved to {args.output}")
     print(f"Parsing timestamp: {parsing_timestamp}")
 
+if __name__ == "__main__":
+    main()

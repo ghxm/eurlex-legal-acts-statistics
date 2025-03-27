@@ -7,11 +7,11 @@
     <style>
         body { font-family: Arial, sans-serif; margin: 0; padding: 0; line-height: 1.6; }
         .container { display: flex; height: 100vh; }
-        .sidebar { width: 250px; background-color: #f8f9fa; padding: 20px; overflow-y: auto; }
+        .sidebar { width: 300px; background-color: #f8f9fa; padding: 20px; overflow-y: auto; }
         .main-content { flex-grow: 1; padding: 20px; overflow-y: auto; }
         .sidebar h2 { margin-top: 0; }
         .sidebar ul { padding-left: 0; list-style-type: none; }
-        .sidebar li { margin-bottom: 8px; }
+        .sidebar li { margin-bottom: 12px; border-bottom: 1px solid #eee; padding-bottom: 8px; }
         .sidebar a { text-decoration: none; color: #007bff; }
         .sidebar a:hover { text-decoration: underline; }
         .current { font-weight: bold; }
@@ -21,88 +21,20 @@
         .doi-badge { display: inline-block; font-size: 0.8em; background: #f1f8ff; padding: 1px 6px; 
                     border-radius: 3px; border: 1px solid #c8e1ff; color: #0366d6; margin-left: 5px; }
         .download-all { margin-top: 20px; padding-top: 15px; border-top: 1px solid #ddd; }
-        .timestamp { font-size: 0.8em; color: #666; display: block; margin-left: 5px; }
+        .timestamp { font-size: 0.85em; color: #333; display: block; margin: 5px 0; 
+                    background: #fffde7; padding: 3px 6px; border-radius: 3px; }
+        .dataset-item { margin-bottom: 15px; }
+        .dataset-title { margin-bottom: 3px; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="sidebar">
-            <h2>EUR-Lex legal act statistics</h2>
+            <h2>EUR-Lex legislative act statistics</h2>
             <p>Monthly statistics of EU legislative acts parsed from the <a href="https://eur-lex.europa.eu/statistics/legislative-acts-statistics.html">EUR-Lex legal act statistics page</a> CSV export.</p>
             <h3>Available Reports</h3>
             <ul id="stats-list">
                 {% for file in stats_files %}
-                <li>
-                    <a href="#{{ file.id }}" class="stats-link" data-src="{{ file.path }}">{{ file.title }}</a>
-                    {% if file.doi %}
-                    <span class="doi-badge">DOI</span>
-                    {% endif %}
-                    {% if file.parsing_timestamp %}
-                    <span class="timestamp">Parsed: {{ file.parsing_timestamp }}</span>
-                    {% endif %}
-                </li>
-                {% endfor %}
-            </ul>
-            <div class="download-all">
-                <h3>Data Access</h3>
-                <p><a href="cache/" target="_blank">Browse all CSV files</a></p>
-                <p><a href="https://github.com/ghxm/eurlex-legal-acts-statistics" target="_blank">GitHub Repository</a></p>
-            </div>
-        </div>
-        <div class="main-content">
-            <iframe id="stats-frame" src="" style="display:none;"></iframe>
-            <div id="no-selection" class="loading">
-                <h2>EU Legislative Acts Statistics</h2>
-                <p>Select a report from the sidebar to view detailed statistics.</p>
-                {% if latest_file %}
-                <p>Latest report: <a href="#{{ latest_file.id }}" class="stats-link" data-src="{{ latest_file.path }}">{{ latest_file.title }}</a></p>
-                {% endif %}
-                <p>Want to analyze the data yourself? <a href="cache/">Browse all CSV files</a> for download.</p>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const frame = document.getElementById('stats-frame');
-            const noSelection = document.getElementById('no-selection');
-            const links = document.querySelectorAll('.stats-link');
-            
-            // Handle link clicks
-            links.forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const src = this.getAttribute('data-src');
-                    frame.src = src;
-                    frame.style.display = 'block';
-                    noSelection.style.display = 'none';
-                    
-                    // Update URL hash
-                    window.location.hash = this.getAttribute('href');
-                    
-                    // Mark current as active
-                    links.forEach(l => l.classList.remove('current'));
-                    this.classList.add('current');
-                });
-            });
-            
-            // Handle URL hash on load
-            function handleHash() {
-                const hash = window.location.hash;
-                if(hash && hash.length > 1) {
-                    const targetLink = document.querySelector(`a[href="${hash}"]`);
-                    if(targetLink) {
-                        targetLink.click();
-                    }
-                } else if(links.length > 0) {
-                    // Load first report by default
-                    links[0].click();
-                }
-            }
-            
-            handleHash();
-            window.addEventListener('hashchange', handleHash);
-        });
-    </script>
-</body>
-</html>
+                <li class="dataset-item">
+                    <div class="dataset-title">
+                        <a href="#{{ file.id }}" class="stats-link

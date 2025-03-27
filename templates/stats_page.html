@@ -20,7 +20,8 @@
         .download-link { display: inline-block; background-color: #4CAF50; color: white; padding: 10px 15px; 
                          text-decoration: none; border-radius: 4px; margin-top: 10px; }
         .download-link:hover { background-color: #45a049; }
-        .parsing-info { color: #666; font-style: italic; margin-bottom: 20px; }
+        .parsing-info { color: #666; font-style: italic; margin-bottom: 20px; background-color: #fffde7; padding: 10px; border-radius: 5px; }
+        .version-details { margin-top: 10px; border-top: 1px solid #eee; padding-top: 10px; font-size: 0.9em; }
     </style>
 </head>
 <body>
@@ -33,7 +34,11 @@
         <p>Data for: {{ period }}</p>
         
         {% if parsing_timestamp %}
-        <p class="parsing-info">Data parsed on: {{ parsing_timestamp }}</p>
+        <div class="parsing-info">
+            <strong>Dataset Version Information:</strong>
+            <p>This dataset was parsed on: {{ parsing_timestamp }}</p>
+            <p class="version-details">Each dataset is uniquely identified by its content period and parsing date. If multiple versions exist for the same period, they represent different parsing attempts and may contain different data.</p>
+        </div>
         {% endif %}
         
         <div class="download-section">

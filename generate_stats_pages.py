@@ -30,87 +30,62 @@ def generate_stats_page(csv_path, output_dir):
             if not parsing_timestamp and 'parsing_timestamp' in doi_info:
                 parsing_timestamp = doi_info['parsing_timestamp']
     
-    # Extract date from filename (assuming format like 'eurlex_legal_acts_statistics_2023_05.csv')
-    date_match = re.search(r'(\d{4})_(\d{2})', base_name)
+    # Extract date from filename (new format with parsing date)
+    # Handle format: eurlex_legal_acts_statistics_YYYY_MM_parsed_YYYYMMDD.csv
+    parts = base_name.split('_parsed_')
+    stats_date_part = parts[0]
+    parsing_date_part = parts[1] if len(parts) > 1 else None
+    
+    # Extract the year and month
+    date_match = re.search(r'(\d{4})_(\d{2})', stats_date_part)
     if date_match:
         year, month = date_match.groups()
-        title = f"Legislative Acts Statistics - {datetime(int(year), int(month), 1).strftime('%B %Y')}"
         period = f"{datetime(int(year), int(month), 1).strftime('%B %Y')}"
+        
+        if parsing_date_part:
+            # Try to format the parsing date if possible
+            try:
+                parsing_date = datetime.strptime(parsing_date_part, '%Y%m%d')
+                parsing_date_formatted = parsing_date.strftime('%Y-%m-%d')
+                title = f"Legislative Acts Statistics - {period} (Parsed: {parsing_date_formatted})"
+            except:
+                title = f"Legislative Acts Statistics - {period} (Parsed: {parsing_date_part})"
+        else:
+            title = f"Legislative Acts Statistics - {period}"
+            if parsing_timestamp:
+                title += f" (Parsed: {parsing_timestamp})"
     else:
         title = f"Legislative Acts Statistics - {base_name}"
         period = base_name
     
     # Calculate summary statistics
-    total_acts = df['count'].sum()
-    basic_acts = df[df['type'] == 'basic']['count'].sum()
-    amending_acts = df[df['type'] == 'amending']['count'].sum()
+    # ... existing code ...
     
-    # Calculate yearly statistics
-    yearly_stats = {}
-    for year in df['year'].unique():
-        year_df = df[df['year'] == year]
-        yearly_stats[year] = {
-            'basic': year_df[year_df['type'] == 'basic']['count'].sum(),
-            'amending': year_df[year_df['type'] == 'amending']['count'].sum(),
-            'total': year_df['count'].sum()
-        }
-    
-    # Calculate category statistics
-    category_stats = {}
-    for category in df['category'].unique():
-        cat_df = df[df['category'] == category]
-        category_stats[category] = {
-            'basic': cat_df[cat_df['type'] == 'basic']['count'].sum(),
-            'amending': cat_df[cat_df['type'] == 'amending']['count'].sum(),
-            'total': cat_df['count'].sum()
-        }
-    
-    # Calculate detailed statistics
-    detailed_stats = {}
-    for category in df['category'].unique():
-        detailed_stats[category] = {}
-        cat_df = df[df['category'] == category]
-        for act_type in cat_df['act_type'].unique():
-            act_df = cat_df[cat_df['act_type'] == act_type]
-            detailed_stats[category][act_type] = {
-                'basic': act_df[act_df['type'] == 'basic']['count'].sum(),
-                'amending': act_df[act_df['type'] == 'amending']['count'].sum(),
-                'total': act_df['count'].sum()
-            }
-    
-    # Load and render the template
-    template_path = os.path.join(os.path.dirname(__file__), 'templates', 'stats_page.html')
-    with open(template_path, 'r') as f:
-        template_content = f.read()
-    
-    template = Template(template_content)
-    html = template.render(
-        title=title,
-        period=period,
-        total_acts=total_acts,
-        basic_acts=basic_acts,
-        amending_acts=amending_acts,
-        yearly_stats=yearly_stats,
-        category_stats=category_stats,
-        detailed_stats=detailed_stats,
-        doi_info=doi_info,
-        csv_filename=filename,  # Pass the CSV filename to the template
-        parsing_timestamp=parsing_timestamp  # Pass the parsing timestamp to the template
-    )
-    
-    # Write to HTML file
-    output_filename = os.path.join(output_dir, f"{base_name}.html")
-    with open(output_filename, 'w') as f:
-        f.write(html)
+    # Load and render the template with better template path handling
+    # ... existing code ...
     
     return {
         'id': base_name,
         'title': title,
         'path': f"{base_name}.html",
         'date': date_match.groups() if date_match else None,
+        'parsing_date': parsing_date_part or (parsing_timestamp if parsing_timestamp else None),
         'doi': doi_info['doi'] if doi_info else None,
-        'csv_filename': filename,  # Include the CSV filename in the returned data
-        'parsing_timestamp': parsing_timestamp  # Include the parsing timestamp in the returned data
+        'csv_filename': filename,
+        'parsing_timestamp': parsing_timestamp
     }
 
-# Rest of the file remains unchanged
+def generate_index_page(stats_files, output_dir):
+    """Generate the main index.html page with links to all stats pages."""
+    # Sort files by date (most recent first) and then by parsing date if available
+    sorted_files = sorted(
+        stats_files, 
+        key=lambda x: (
+            x['date'] is None, 
+            x['date'] or (0, 0), 
+            x['parsing_date'] or '0'
+        ),
+        reverse=True
+    )
+    
+    # ... existing code ...

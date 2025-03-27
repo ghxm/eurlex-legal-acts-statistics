@@ -38,7 +38,7 @@ jobs:
           python parse_legal_acts_statistics.py --input "https://eur-lex.europa.eu/export-statistics-all.html?callingUrl=%2Fstatistics%2Flegislative-acts-statistics.html&statisticsType=LEGISLATIVE_ACTS" --output "cache/eurlex_legal_acts_statistics_$(date +'%Y_%m').csv" ${{ secrets.ZENODO_TOKEN && '--generate-doi --zenodo-token "${{ secrets.ZENODO_TOKEN }}"' || '' }} ${{ secrets.ZENODO_AUTHORS && '--authors "${{ secrets.ZENODO_AUTHORS }}"' || '' }} ${{ secrets.ZENODO_DESCRIPTION && '--description "${{ secrets.ZENODO_DESCRIPTION }}"' || '' }} ${{ secrets.ZENODO_TITLE && '--title "${{ secrets.ZENODO_TITLE }}"' || '' }} ${{ secrets.ZENODO_KEYWORDS && '--keywords "${{ secrets.ZENODO_KEYWORDS }}"' || '' }} ${{ secrets.ZENODO_LICENSE && '--license "${{ secrets.ZENODO_LICENSE }}"' || '' }}
 
       - name: Upload data artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: parsed-data
           path: |
@@ -51,7 +51,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: parsed-data
           path: .
@@ -74,7 +74,7 @@ jobs:
           python generate_stats_pages.py --input cache --output stats_pages
 
       - name: Upload website artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: website-files
           path: |
@@ -88,7 +88,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: website-files
           path: .
@@ -113,7 +113,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: website-files
           path: .

@@ -23,12 +23,27 @@
         .version-details { margin-top: 10px; border-top: 1px solid #eee; padding-top: 10px; font-size: 0.9em; }
         .data-explanation { background-color: #e8f5e9; padding: 15px; border-radius: 5px; margin: 20px 0; }
         .section-explanation { font-size: 0.9em; color: #555; margin-bottom: 15px; font-style: italic; }
+        .back-to-main { display: none; margin-bottom: 20px; background-color: #f8f9fa; padding: 10px 15px; 
+                         border-radius: 4px; text-decoration: none; color: #333; font-weight: bold; }
+        .back-to-main:hover { background-color: #e9ecef; }
+        .permalink-container { background-color: #f8f9fa; padding: 10px; border-radius: 5px; margin: 10px 0 20px; }
+        .permalink-input { width: 85%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
+        .permalink-button { padding: 8px 12px; background-color: #007bff; color: white; border: none; 
+                            border-radius: 4px; cursor: pointer; margin-left: 5px; }
+        .permalink-button:hover { background-color: #0069d9; }
     </style>
 </head>
 <body>
     <div class="container">
+        <a href="../index.html" class="back-to-main" id="backToMain">← Back to main site</a>
         
         <h1>{{ title }}</h1>
+        
+        <div class="permalink-container">
+            <label for="permalink"><strong>Permalink:</strong></label>
+            <input type="text" id="permalink" class="permalink-input" readonly>
+            <button onclick="copyPermalink()" class="permalink-button">Copy</button>
+        </div>
         
         <div class="data-explanation">
             <h3>About This Dataset</h3>
@@ -159,5 +174,37 @@
             <p><strong>Basic vs. Amending Acts:</strong> "Basic acts" are standalone pieces of legislation, while "Amending acts" modify existing legislation. The sum of these two categories gives the total number of acts.</p>
         </div>
     </div>
+
+    <script>
+        // Set permalink in the input field
+        document.addEventListener('DOMContentLoaded', function() {
+            const permalinkInput = document.getElementById('permalink');
+            if (permalinkInput) {
+                permalinkInput.value = window.location.href;
+            }
+            
+            // Check if page is in an iframe
+            if (window.self === window.top) {
+                // Page is not in an iframe, show the back button
+                document.getElementById('backToMain').style.display = 'inline-block';
+            }
+        });
+        
+        // Function to copy the permalink to clipboard
+        function copyPermalink() {
+            const permalinkInput = document.getElementById('permalink');
+            permalinkInput.select();
+            document.execCommand('copy');
+            
+            // Show a brief "Copied!" tooltip or change button text temporarily
+            const button = document.querySelector('.permalink-button');
+            const originalText = button.textContent;
+            button.textContent = 'Copied!';
+            
+            setTimeout(function() {
+                button.textContent = originalText;
+            }, 2000);
+        }
+    </script>
 </body>
 </html>

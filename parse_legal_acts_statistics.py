@@ -217,12 +217,16 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    # Get current datetime for filename
-    current_datetime = datetime.now().strftime('%Y%m%d')
+    # Get current date for filename
+    current_date = datetime.now().strftime('%Y%m%d')
     
-    # Update output path to include parsing date if not specified
-    if args.output and '_parsed_' not in args.output:
-        args.output = args.output.replace('.csv', f'_parsed_{current_datetime}.csv')
+    # Update output path to use only parsing date
+    if args.output:
+        # Extract directory and base name
+        output_dir = os.path.dirname(args.output)
+        # Replace with new naming pattern using only parsing date
+        new_output = os.path.join(output_dir, f"eurlex_legal_acts_statistics_{current_date}.csv")
+        args.output = new_output
 
     # Prepare metadata dictionary
     metadata = {}
@@ -251,3 +255,4 @@ if __name__ == "__main__":
     )
     print(f"Parsed data from {args.input} and saved to {args.output}")
     print(f"Parsing timestamp: {parsing_timestamp}")
+

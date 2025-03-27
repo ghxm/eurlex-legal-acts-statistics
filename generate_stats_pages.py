@@ -30,33 +30,27 @@ def generate_stats_page(csv_path, output_dir):
             if not parsing_timestamp and 'parsing_timestamp' in doi_info:
                 parsing_timestamp = doi_info['parsing_timestamp']
     
-    # Extract date from filename (new format with parsing date)
-    # Handle format: eurlex_legal_acts_statistics_YYYY_MM_parsed_YYYYMMDD.csv
-    parts = base_name.split('_parsed_')
-    stats_date_part = parts[0]
-    parsing_date_part = parts[1] if len(parts) > 1 else None
+    # Extract date from filename (new format with only parsing date)
+    # Handle format: eurlex_legal_acts_statistics_YYYYMMDD.csv
+    date_match = re.search(r'eurlex_legal_acts_statistics_(\d{8})', base_name)
     
-    # Extract the year and month
-    date_match = re.search(r'(\d{4})_(\d{2})', stats_date_part)
     if date_match:
-        year, month = date_match.groups()
-        period = f"{datetime(int(year), int(month), 1).strftime('%B %Y')}"
+        parsing_date_str = date_match.group(1)
+        # Format the parsing date
+        try:
+            parsing_date = datetime.strptime(parsing_date_str, '%Y%m%d')
+            parsing_date_formatted = parsing_date.strftime('%Y-%m-%d')
+            title = f"EUR-Lex Cumulative Legislative Acts Statistics (Snapshot: {parsing_date_formatted})"
+        except:
+            title = f"EUR-Lex Cumulative Legislative Acts Statistics (Snapshot: {parsing_date_str})"
         
-        if parsing_date_part:
-            # Try to format the parsing date if possible
-            try:
-                parsing_date = datetime.strptime(parsing_date_part, '%Y%m%d')
-                parsing_date_formatted = parsing_date.strftime('%Y-%m-%d')
-                title = f"Legislative Acts Statistics - {period} (Parsed: {parsing_date_formatted})"
-            except:
-                title = f"Legislative Acts Statistics - {period} (Parsed: {parsing_date_part})"
-        else:
-            title = f"Legislative Acts Statistics - {period}"
-            if parsing_timestamp:
-                title += f" (Parsed: {parsing_timestamp})"
+        period = f"Snapshot: {parsing_date_formatted if 'parsing_date_formatted' in locals() else parsing_date_str}"
     else:
-        title = f"Legislative Acts Statistics - {base_name}"
+        title = f"EUR-Lex Cumulative Legislative Acts Statistics - {base_name}"
         period = base_name
+        
+    if parsing_timestamp and "Parsed:" not in title:
+        title += f" - Parsed: {parsing_timestamp}"
     
     # Calculate summary statistics
     total_acts = df['count'].sum()
@@ -65,7 +59,7 @@ def generate_stats_page(csv_path, output_dir):
     
     # Calculate yearly statistics
     yearly_stats = {}
-    for year in df['year'].unique():
+    for year in sorted(df['year'].unique()):
         year_df = df[df['year'] == year]
         yearly_stats[year] = {
             'basic': year_df[year_df['type'] == 'basic']['count'].sum(),
@@ -75,7 +69,7 @@ def generate_stats_page(csv_path, output_dir):
     
     # Calculate category statistics
     category_stats = {}
-    for category in df['category'].unique():
+    for category in sorted(df['category'].unique()):
         cat_df = df[df['category'] == category]
         category_stats[category] = {
             'basic': cat_df[cat_df['type'] == 'basic']['count'].sum(),
@@ -85,10 +79,10 @@ def generate_stats_page(csv_path, output_dir):
     
     # Calculate detailed statistics
     detailed_stats = {}
-    for category in df['category'].unique():
+    for category in sorted(df['category'].unique()):
         detailed_stats[category] = {}
         cat_df = df[df['category'] == category]
-        for act_type in cat_df['act_type'].unique():
+        for act_type in sorted(cat_df['act_type'].unique()):
             act_df = cat_df[cat_df['act_type'] == act_type]
             detailed_stats[category][act_type] = {
                 'basic': act_df[act_df['type'] == 'basic']['count'].sum(),
@@ -111,7 +105,8 @@ def generate_stats_page(csv_path, output_dir):
         detailed_stats=detailed_stats,
         doi_info=doi_info,
         csv_filename=filename,
-        parsing_timestamp=parsing_timestamp
+        parsing_timestamp=parsing_timestamp,
+        data_explanation="This dataset contains cumulative statistics of all EU legislative acts available in EUR-Lex at the time of parsing. The data represents the total number of acts, not just those from a specific period."
     )
     
     # Write to HTML file
@@ -119,12 +114,17 @@ def generate_stats_page(csv_path, output_dir):
     with open(output_filename, 'w') as f:
         f.write(html)
     
+    # Extract date for sorting purposes
+    parsing_date = None
+    if date_match:
+        parsing_date = date_match.group(1)
+    
     return {
         'id': base_name,
         'title': title,
         'path': f"stats_pages/{base_name}.html",  # Include the directory in path
-        'date': date_match.groups() if date_match else None,
-        'parsing_date': parsing_date_part or (parsing_timestamp if parsing_timestamp else None),
+        'date': None,  # We don't use year/month anymore
+        'parsing_date': parsing_date,
         'doi': doi_info['doi'] if doi_info else None,
         'csv_filename': filename,
         'parsing_timestamp': parsing_timestamp
@@ -132,14 +132,10 @@ def generate_stats_page(csv_path, output_dir):
 
 def generate_index_page(stats_files, output_dir):
     """Generate the main index.html page with links to all stats pages."""
-    # Sort files by date (most recent first) and then by parsing date if available
+    # Sort files by parsing date (most recent first)
     sorted_files = sorted(
         stats_files, 
-        key=lambda x: (
-            x['date'] is None, 
-            x['date'] or (0, 0), 
-            x['parsing_date'] or '0'
-        ),
+        key=lambda x: x['parsing_date'] or '0',
         reverse=True
     )
     

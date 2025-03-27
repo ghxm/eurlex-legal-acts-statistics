@@ -21,19 +21,26 @@
         .download-link:hover { background-color: #45a049; }
         .parsing-info { color: #666; font-style: italic; margin-bottom: 20px; background-color: #fffde7; padding: 10px; border-radius: 5px; }
         .version-details { margin-top: 10px; border-top: 1px solid #eee; padding-top: 10px; font-size: 0.9em; }
+        .data-explanation { background-color: #e8f5e9; padding: 15px; border-radius: 5px; margin: 20px 0; }
+        .section-explanation { font-size: 0.9em; color: #555; margin-bottom: 15px; font-style: italic; }
     </style>
 </head>
 <body>
     <div class="container">
         
         <h1>{{ title }}</h1>
-        <p>Data for: {{ period }}</p>
+        
+        <div class="data-explanation">
+            <h3>About This Dataset</h3>
+            <p>{{ data_explanation }}</p>
+            <p><strong>Important:</strong> The numbers in this report are <em>cumulative totals</em> as reported by EUR-Lex at the time of data collection. They represent the total number of legal acts in the EUR-Lex database, not just acts from a specific period.</p>
+        </div>
         
         {% if parsing_timestamp %}
         <div class="parsing-info">
             <strong>Dataset Version Information:</strong>
             <p>This dataset was parsed on: {{ parsing_timestamp }}</p>
-            <p class="version-details">Each dataset is uniquely identified by its content period and parsing date. If multiple versions exist for the same period, they represent different parsing attempts and may contain different data.</p>
+            <p class="version-details">Each dataset is uniquely identified by its parsing date. Different versions represent different parsing attempts and may contain different data as the EUR-Lex database is updated over time.</p>
         </div>
         {% endif %}
         
@@ -61,12 +68,14 @@
         
         <div class="summary">
             <h2>Summary Statistics</h2>
-            <p>Total number of acts: {{ total_acts }}</p>
-            <p>Basic acts: {{ basic_acts }}</p>
-            <p>Amending acts: {{ amending_acts }}</p>
+            <p class="section-explanation">These figures represent the total number of all legislative acts in the EUR-Lex database at the time of data collection.</p>
+            <p>Total number of acts: <strong>{{ total_acts }}</strong></p>
+            <p>Basic acts: <strong>{{ basic_acts }}</strong> (original legislation)</p>
+            <p>Amending acts: <strong>{{ amending_acts }}</strong> (acts that modify existing legislation)</p>
         </div>
         
         <h2>Statistics by Year</h2>
+        <p class="section-explanation">This table shows the distribution of acts by year of publication. For each year, both basic and amending acts are shown.</p>
         <table>
             <tr>
                 <th>Year</th>
@@ -85,6 +94,7 @@
         </table>
         
         <h2>Statistics by Category</h2>
+        <p class="section-explanation">This table shows the distribution of acts by legal category. Each row represents a different category of EU legislation.</p>
         <table>
             <tr>
                 <th>Category</th>
@@ -103,6 +113,7 @@
         </table>
         
         <h2>Detailed Statistics</h2>
+        <p class="section-explanation">This table provides a detailed breakdown by both category and specific act type. The totals here should match the category totals above.</p>
         <table>
             <tr>
                 <th>Category</th>
@@ -123,6 +134,12 @@
                 {% endfor %}
             {% endfor %}
         </table>
+        
+        <div class="data-explanation" style="margin-top: 30px;">
+            <h3>Understanding the Numbers</h3>
+            <p><strong>Why don't some numbers add up exactly?</strong> In some cases, the EUR-Lex classification system may categorize acts differently at different levels. An act might be counted in multiple categories or might be classified differently in the detailed view compared to the summary view.</p>
+            <p><strong>Basic vs. Amending Acts:</strong> "Basic acts" are standalone pieces of legislation, while "Amending acts" modify existing legislation. The sum of these two categories gives the total number of acts.</p>
+        </div>
     </div>
 </body>
 </html>

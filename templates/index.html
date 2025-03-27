@@ -25,19 +25,31 @@
                     background: #fffde7; padding: 3px 6px; border-radius: 3px; }
         .dataset-item { margin-bottom: 15px; }
         .dataset-title { margin-bottom: 3px; }
+        .explanation { background-color: #e8f5e9; padding: 15px; border-radius: 5px; margin: 20px 0; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="sidebar">
             <h2>EUR-Lex legislative act statistics</h2>
-            <p>Monthly statistics of EU legislative acts parsed from the <a href="https://eur-lex.europa.eu/statistics/legislative-acts-statistics.html">EUR-Lex legal act statistics page</a> CSV export.</p>
-            <h3>Available Reports</h3>
+            <p>Cumulative statistics of EU legislative acts parsed from the <a href="https://eur-lex.europa.eu/statistics/legislative-acts-statistics.html">EUR-Lex legal act statistics page</a>.</p>
+            
+            <div class="explanation">
+                <p><strong>About these datasets:</strong> Each dataset represents a snapshot of the <em>cumulative totals</em> of all legislative acts in the EUR-Lex database at the time of parsing. Newer snapshots will contain more recent data.</p>
+            </div>
+            
+            <h3>Available Snapshots</h3>
             <ul id="stats-list">
                 {% for file in stats_files %}
                 <li class="dataset-item">
                     <div class="dataset-title">
-                        <a href="#{{ file.id }}" class="stats-link" data-src="{{ file.path }}">{{ file.title }}</a>
+                        <a href="#{{ file.id }}" class="stats-link" data-src="{{ file.path }}">
+                            {% if file.parsing_date %}
+                                EU Legal Acts Statistics - {{ file.parsing_date[:4] }}-{{ file.parsing_date[4:6] }}-{{ file.parsing_date[6:] }}
+                            {% else %}
+                                {{ file.title }}
+                            {% endif %}
+                        </a>
                         {% if file.doi %}
                         <a href="https://doi.org/{{ file.doi }}" class="doi-badge" target="_blank">DOI</a>
                         {% endif %}
@@ -58,13 +70,24 @@
             <iframe id="stats-frame" src="" style="display:none;"></iframe>
             <div id="no-selection" class="loading">
                 <h2>EU Legislative Acts Statistics</h2>
-                <p>Select a report from the sidebar to view detailed statistics.</p>
+                <p>Select a snapshot from the sidebar to view detailed statistics.</p>
                 
                 {% if stats_files and stats_files|length > 0 %}
-                <p>Latest report: <a href="#{{ stats_files[0].id }}" class="stats-link" data-src="{{ stats_files[0].path }}">{{ stats_files[0].title }}</a></p>
+                <p>Latest snapshot: <a href="#{{ stats_files[0].id }}" class="stats-link" data-src="{{ stats_files[0].path }}">{{ stats_files[0].title }}</a></p>
                 {% endif %}
                 
-                <p>This project collects and visualizes statistics about EU legislative acts from the official EUR-Lex website. The data is updated monthly.</p>
+                <div class="explanation">
+                    <h3>Understanding this Data</h3>
+                    <p>This project collects and visualizes statistics about EU legislative acts from the official EUR-Lex website. The data shows the <strong>cumulative totals</strong> of all legislative acts in the EUR-Lex database at the time of data collection.</p>
+                    
+                    <p><strong>Important clarifications:</strong></p>
+                    <ul>
+                        <li>Each dataset is a <strong>snapshot</strong> of the entire EUR-Lex database at a specific point in time</li>
+                        <li>The data is <strong>cumulative</strong> - it represents all acts ever published, not just those from recent months</li>
+                        <li>Newer snapshots will include more recent legislation than older snapshots</li>
+                        <li>The date in each snapshot title refers to when the data was collected from EUR-Lex</li>
+                    </ul>
+                </div>
                 
                 <h3>About the Data</h3>
                 <p>The statistics show the number of basic and amending legislative acts by category and type. The data is extracted from the <a href="https://eur-lex.europa.eu/statistics/legislative-acts-statistics.html" target="_blank">EUR-Lex statistics page</a>.</p>

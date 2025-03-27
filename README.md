@@ -5,6 +5,8 @@ This project parses [legal acts statistics from EUR-Lex](https://eur-lex.europa.
 
 [^1]: The statistics are already compiled by EUR-Lex just not provided in a format that is easily digestible.
 
+While this project has a useful purpose, it is meant to explore automated data collection and processing for dataset provision. The project is not affiliated with EUR-Lex or the European Union.
+
 ## Setup
 
 ### Parse data

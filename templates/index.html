@@ -44,10 +44,12 @@
                 <li class="dataset-item">
                     <div class="dataset-title">
                         <a href="#{{ file.id }}" class="stats-link" data-src="{{ file.path }}">
-                            {% if file.parsing_date %}
+                            {% if file.parsing_timestamp %}
+                                {{ file.parsing_timestamp }}
+                            {% elif file.parsing_date %}
                                 {{ file.parsing_date[:4] }}-{{ file.parsing_date[4:6] }}-{{ file.parsing_date[6:] }}
                             {% else %}
-                                {{ file.title }}
+                                Snapshot
                             {% endif %}
                         </a>
                         {% if file.doi %}

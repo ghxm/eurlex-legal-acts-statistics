@@ -87,6 +87,12 @@ jobs:
     needs: generate-website
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository with token
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
@@ -100,9 +106,9 @@ jobs:
 
       - name: Commit and push changes
         run: |
-          git add cache stats_pages index.html
+          git add cache stats_pages index.html || echo "No files to add"
           git commit -m "Update legal acts data and statistics pages" || echo "No changes to commit"
-          git push
+          git push origin HEAD:${GITHUB_REF}
 
   deploy-pages:
     name: 🚀 Deploy to GitHub Pages

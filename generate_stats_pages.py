@@ -137,7 +137,13 @@ def generate_stats_page(csv_path, output_dir):
     )
     
     # Write to HTML file
-    output_filename = os.path.join(output_dir, f"{base_name}.html")
+    if date_match:
+        date_str = date_match.group(1)
+        out_name = f"{date_str}.html"
+    else:
+        out_name = f"{base_name}.html"
+
+    output_filename = os.path.join(output_dir, out_name)
     with open(output_filename, 'w') as f:
         f.write(html)
     
@@ -149,7 +155,7 @@ def generate_stats_page(csv_path, output_dir):
     return {
         'id': base_name,
         'title': title,
-        'path': f"stats_pages/{base_name}.html",  # Include the directory in path
+        'path': f"stats_pages/{out_name}",  # Include the directory in path
         'date': None,  # We don't use year/month anymore
         'parsing_date': parsing_date,
         'doi': doi_info['doi'] if doi_info else None,

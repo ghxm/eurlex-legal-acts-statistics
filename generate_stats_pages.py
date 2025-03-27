@@ -30,8 +30,18 @@ def generate_stats_page(csv_path, output_dir):
             if not parsing_timestamp and 'parsing_timestamp' in doi_info:
                 parsing_timestamp = doi_info['parsing_timestamp']
     
-    raw_csv_filename = doi_info.get('raw_csv_filename') if doi_info else None
-    parsing_code_filename = doi_info.get('parsing_code_filename') if doi_info else None
+    raw_csv_fallback = base_name + "_raw.csv"
+    parsing_code_fallback = base_name + "_parsecode.py"
+
+    raw_csv_path = os.path.join(os.path.dirname(csv_path), raw_csv_fallback)
+    parse_code_path = os.path.join(os.path.dirname(csv_path), parsing_code_fallback)
+
+    raw_csv_filename = doi_info.get('raw_csv_filename') if doi_info else (
+        raw_csv_fallback if os.path.exists(raw_csv_path) else None
+    )
+    parsing_code_filename = doi_info.get('parsing_code_filename') if doi_info else (
+        parsing_code_fallback if os.path.exists(parse_code_path) else None
+    )
 
     # Extract date from filename (new format with only parsing date)
     # Handle format: eurlex_legal_acts_statistics_YYYYMMDD.csv

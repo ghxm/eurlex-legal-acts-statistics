@@ -122,7 +122,7 @@ def generate_stats_page(csv_path, output_dir):
     return {
         'id': base_name,
         'title': title,
-        'path': f"{base_name}.html",
+        'path': f"stats_pages/{base_name}.html",  # Include the directory in path
         'date': date_match.groups() if date_match else None,
         'parsing_date': parsing_date_part or (parsing_timestamp if parsing_timestamp else None),
         'doi': doi_info['doi'] if doi_info else None,
@@ -194,3 +194,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+

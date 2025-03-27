@@ -83,7 +83,8 @@
                 link.addEventListener('click', function(e) {
                     e.preventDefault();
                     const src = this.getAttribute('data-src');
-                    frame.src = src;
+                    // Ensure path is relative to the current document
+                    frame.src = src.startsWith('/') ? src : src;
                     frame.style.display = 'block';
                     noSelection.style.display = 'none';
                     

@@ -23,7 +23,7 @@ jobs:
     - name: Run parse script
       run: |
         mkdir -p cache
-        python parse_legal_acts_statistics.py --input "Adopted acts - Basic overview.csv" --output "cache/legislative_acts_$(date +'%Y_%m').csv" ${{ secrets.ZENODO_TOKEN && '--generate-doi --zenodo-token "${{ secrets.ZENODO_TOKEN }}"' || '' }} ${{ secrets.ZENODO_AUTHORS && '--authors "${{ secrets.ZENODO_AUTHORS }}"' || '' }} ${{ secrets.ZENODO_DESCRIPTION && '--description "${{ secrets.ZENODO_DESCRIPTION }}"' || '' }} ${{ secrets.ZENODO_TITLE && '--title "${{ secrets.ZENODO_TITLE }}"' || '' }} ${{ secrets.ZENODO_KEYWORDS && '--keywords "${{ secrets.ZENODO_KEYWORDS }}"' || '' }} ${{ secrets.ZENODO_LICENSE && '--license "${{ secrets.ZENODO_LICENSE }}"' || '' }}
+        python parse_legal_acts_statistics.py --input "https://eur-lex.europa.eu/export-statistics-all.html?callingUrl=%2Fstatistics%2Flegislative-acts-statistics.html&statisticsType=LEGISLATIVE_ACTS" --output "cache/eurlex_legal_acts_statistics_$(date +'%Y_%m').csv" ${{ secrets.ZENODO_TOKEN && '--generate-doi --zenodo-token "${{ secrets.ZENODO_TOKEN }}"' || '' }} ${{ secrets.ZENODO_AUTHORS && '--authors "${{ secrets.ZENODO_AUTHORS }}"' || '' }} ${{ secrets.ZENODO_DESCRIPTION && '--description "${{ secrets.ZENODO_DESCRIPTION }}"' || '' }} ${{ secrets.ZENODO_TITLE && '--title "${{ secrets.ZENODO_TITLE }}"' || '' }} ${{ secrets.ZENODO_KEYWORDS && '--keywords "${{ secrets.ZENODO_KEYWORDS }}"' || '' }} ${{ secrets.ZENODO_LICENSE && '--license "${{ secrets.ZENODO_LICENSE }}"' || '' }}
 
     - name: Generate stats pages
       run: |

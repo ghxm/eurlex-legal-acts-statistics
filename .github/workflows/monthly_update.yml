@@ -19,7 +19,11 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-    - uses: actions/checkout@v4
+    - name: 🔧 Setup Environment
+      run: echo "::group::Setup Environment"
+
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
     - name: Set up Python
       uses: actions/setup-python@v5
@@ -29,22 +33,36 @@ jobs:
     - name: Install dependencies
       run: |
         pip install pandas requests jinja2
+        echo "::endgroup::"
 
-    - name: Run parse script
+    - name: 📊 Parse Data
       run: |
+        echo "::group::Parse Data"
         mkdir -p cache
         python parse_legal_acts_statistics.py --input "https://eur-lex.europa.eu/export-statistics-all.html?callingUrl=%2Fstatistics%2Flegislative-acts-statistics.html&statisticsType=LEGISLATIVE_ACTS" --output "cache/eurlex_legal_acts_statistics_$(date +'%Y_%m').csv" ${{ secrets.ZENODO_TOKEN && '--generate-doi --zenodo-token "${{ secrets.ZENODO_TOKEN }}"' || '' }} ${{ secrets.ZENODO_AUTHORS && '--authors "${{ secrets.ZENODO_AUTHORS }}"' || '' }} ${{ secrets.ZENODO_DESCRIPTION && '--description "${{ secrets.ZENODO_DESCRIPTION }}"' || '' }} ${{ secrets.ZENODO_TITLE && '--title "${{ secrets.ZENODO_TITLE }}"' || '' }} ${{ secrets.ZENODO_KEYWORDS && '--keywords "${{ secrets.ZENODO_KEYWORDS }}"' || '' }} ${{ secrets.ZENODO_LICENSE && '--license "${{ secrets.ZENODO_LICENSE }}"' || '' }}
+        echo "::endgroup::"
 
-    - name: Generate stats pages
+    - name: 🌐 Create Website
       run: |
+        echo "::group::Generate Statistics Pages"
         mkdir -p stats_pages
         python generate_stats_pages.py --input cache --output stats_pages
+        echo "::endgroup::"
 
-    - name: Commit and push changes
-      uses: stefanzweifel/git-auto-commit-action@v5
-      with:
-        commit_message: "Update legal acts data and statistics pages"
+    - name: 💾 Save Changes
+      run: |
+        echo "::group::Commit Changes"
+        git config --global user.name "GitHub Actions"
+        git config --global user.email "actions@github.com"
+        git add cache stats_pages index.html
+        git commit -m "Update legal acts data and statistics pages" || echo "No changes to commit"
+        git push
+        echo "::endgroup::"
 
+    - name: 🚀 Deploy to GitHub Pages
+      run: |
+        echo "::group::Deploy to GitHub Pages"
+        
     # Configure GitHub Pages
     - name: Setup Pages
       uses: actions/configure-pages@v4
@@ -59,3 +77,5 @@ jobs:
     - name: Deploy to GitHub Pages
       id: deployment
       uses: actions/deploy-pages@v4
+      
+    - run: echo "::endgroup::"

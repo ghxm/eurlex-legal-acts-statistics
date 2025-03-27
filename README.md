@@ -11,6 +11,14 @@ This project parses [legal acts statistics from EUR-Lex](https://eur-lex.europa.
 
 ## Setup
 
+### Install Requirements
+
+Install the required dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
 ### Parse data
 
 Run the CLI script to parse raw data:
@@ -93,3 +101,4 @@ Access the statistics in two ways:
 2. Browse interactive statistics pages that show summaries by year, category, and more
 
 Open `index.html` in your browser to view the latest statistics.
+

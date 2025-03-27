@@ -11,6 +11,11 @@ def generate_stats_page(csv_path, output_dir):
     """Generate an HTML statistics page for a CSV file."""
     df = pd.read_csv(csv_path)
     
+    # Extract parsing timestamp if available
+    parsing_timestamp = None
+    if 'parsing_date' in df.columns:
+        parsing_timestamp = df['parsing_date'].iloc[0]
+    
     # Extract filename without extension
     filename = os.path.basename(csv_path)
     base_name = os.path.splitext(filename)[0]
@@ -21,6 +26,9 @@ def generate_stats_page(csv_path, output_dir):
     if os.path.exists(metadata_path):
         with open(metadata_path, 'r') as f:
             doi_info = json.load(f)
+            # Get parsing timestamp from metadata if not in dataframe
+            if not parsing_timestamp and 'parsing_timestamp' in doi_info:
+                parsing_timestamp = doi_info['parsing_timestamp']
     
     # Extract date from filename (assuming format like 'eurlex_legal_acts_statistics_2023_05.csv')
     date_match = re.search(r'(\d{4})_(\d{2})', base_name)
@@ -86,7 +94,8 @@ def generate_stats_page(csv_path, output_dir):
         category_stats=category_stats,
         detailed_stats=detailed_stats,
         doi_info=doi_info,
-        csv_filename=filename  # Pass the CSV filename to the template
+        csv_filename=filename,  # Pass the CSV filename to the template
+        parsing_timestamp=parsing_timestamp  # Pass the parsing timestamp to the template
     )
     
     # Write to HTML file
@@ -100,7 +109,8 @@ def generate_stats_page(csv_path, output_dir):
         'path': f"{base_name}.html",
         'date': date_match.groups() if date_match else None,
         'doi': doi_info['doi'] if doi_info else None,
-        'csv_filename': filename  # Include the CSV filename in the returned data
+        'csv_filename': filename,  # Include the CSV filename in the returned data
+        'parsing_timestamp': parsing_timestamp  # Include the parsing timestamp in the returned data
     }
 
 # Rest of the file remains unchanged

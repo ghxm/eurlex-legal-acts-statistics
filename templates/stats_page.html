@@ -20,6 +20,7 @@
         .download-link { display: inline-block; background-color: #4CAF50; color: white; padding: 10px 15px; 
                          text-decoration: none; border-radius: 4px; margin-top: 10px; }
         .download-link:hover { background-color: #45a049; }
+        .parsing-info { color: #666; font-style: italic; margin-bottom: 20px; }
     </style>
 </head>
 <body>
@@ -30,6 +31,10 @@
         
         <h1>{{ title }}</h1>
         <p>Data for: {{ period }}</p>
+        
+        {% if parsing_timestamp %}
+        <p class="parsing-info">Data parsed on: {{ parsing_timestamp }}</p>
+        {% endif %}
         
         <div class="download-section">
             <h2>Download Data</h2>

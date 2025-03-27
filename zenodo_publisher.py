@@ -22,7 +22,7 @@ class ZenodoPublisher:
         self.base_url = "https://sandbox.zenodo.org/api" if sandbox else "https://zenodo.org/api"
         self.headers = {"Content-Type": "application/json", "Authorization": f"Bearer {self.token}"}
     
-    def create_or_update_deposit(self, csv_path, dataset_date, metadata=None):
+    def create_or_update_deposit(self, csv_path, dataset_date, metadata=None, parsing_timestamp=None):
         """
         Create a new deposit or update an existing one on Zenodo.
         
@@ -30,6 +30,7 @@ class ZenodoPublisher:
             csv_path (str): Path to the CSV file to upload
             dataset_date (str): Date string in YYYY_MM format
             metadata (dict): Additional metadata for the deposit
+            parsing_timestamp (str): Timestamp when the data was parsed
 
         Returns:
             str: DOI for the deposit
@@ -43,8 +44,8 @@ class ZenodoPublisher:
             
         # Default metadata
         default_metadata = {
-            "title": f"EU Legislative Acts Statistics - {formatted_date}",
-            "description": f"Monthly statistics of EU legislative acts for {formatted_date}. Part of the EurLex Legal Acts Statistics project.",
+            "title": f"EU Legislative Acts Statistics - {formatted_date}" + (f" (Parsed: {parsing_timestamp})" if parsing_timestamp else ""),
+            "description": f"Monthly statistics of EU legislative acts for {formatted_date}." + (f" Parsed on {parsing_timestamp}." if parsing_timestamp else ""),
             "upload_type": "dataset",
             "creators": [{"name": "EurLex Legal Acts Statistics Project"}],
             "access_right": "open",
@@ -130,3 +131,4 @@ class ZenodoPublisher:
             "bibtex": bibtex,
             "doi": doi
         }
+

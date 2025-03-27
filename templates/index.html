@@ -21,6 +21,7 @@
         .doi-badge { display: inline-block; font-size: 0.8em; background: #f1f8ff; padding: 1px 6px; 
                     border-radius: 3px; border: 1px solid #c8e1ff; color: #0366d6; margin-left: 5px; }
         .download-all { margin-top: 20px; padding-top: 15px; border-top: 1px solid #ddd; }
+        .timestamp { font-size: 0.8em; color: #666; display: block; margin-left: 5px; }
     </style>
 </head>
 <body>
@@ -35,6 +36,9 @@
                     <a href="#{{ file.id }}" class="stats-link" data-src="{{ file.path }}">{{ file.title }}</a>
                     {% if file.doi %}
                     <span class="doi-badge">DOI</span>
+                    {% endif %}
+                    {% if file.parsing_timestamp %}
+                    <span class="timestamp">Parsed: {{ file.parsing_timestamp }}</span>
                     {% endif %}
                 </li>
                 {% endfor %}

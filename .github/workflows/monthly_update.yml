@@ -13,8 +13,8 @@ permissions:
 
 # Define workflow jobs
 jobs:
-  setup:
-    name: 🔧 Setup Environment
+  parse-data:
+    name: 📊 Parse Data
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -27,24 +27,8 @@ jobs:
 
       - name: Install dependencies
         run: |
+          python -m pip install --upgrade pip
           pip install -r requirements.txt
-
-      - name: Cache repository
-        uses: actions/cache@v3
-        with:
-          path: .
-          key: repo-${{ github.sha }}
-
-  parse-data:
-    name: 📊 Parse Data
-    needs: setup
-    runs-on: ubuntu-latest
-    steps:
-      - name: Restore cached repository
-        uses: actions/cache@v3
-        with:
-          path: .
-          key: repo-${{ github.sha }}
 
       - name: Create cache directory
         run: mkdir -p cache
@@ -53,26 +37,34 @@ jobs:
         run: |
           python parse_legal_acts_statistics.py --input "https://eur-lex.europa.eu/export-statistics-all.html?callingUrl=%2Fstatistics%2Flegislative-acts-statistics.html&statisticsType=LEGISLATIVE_ACTS" --output "cache/eurlex_legal_acts_statistics_$(date +'%Y_%m').csv" ${{ secrets.ZENODO_TOKEN && '--generate-doi --zenodo-token "${{ secrets.ZENODO_TOKEN }}"' || '' }} ${{ secrets.ZENODO_AUTHORS && '--authors "${{ secrets.ZENODO_AUTHORS }}"' || '' }} ${{ secrets.ZENODO_DESCRIPTION && '--description "${{ secrets.ZENODO_DESCRIPTION }}"' || '' }} ${{ secrets.ZENODO_TITLE && '--title "${{ secrets.ZENODO_TITLE }}"' || '' }} ${{ secrets.ZENODO_KEYWORDS && '--keywords "${{ secrets.ZENODO_KEYWORDS }}"' || '' }} ${{ secrets.ZENODO_LICENSE && '--license "${{ secrets.ZENODO_LICENSE }}"' || '' }}
 
-      - name: Cache parsed data
-        uses: actions/cache@v3
+      - name: Upload data artifacts
+        uses: actions/upload-artifact@v3
         with:
+          name: parsed-data
           path: |
+            cache/
             .
-            cache
-          key: repo-with-data-${{ github.sha }}
 
   generate-website:
     name: 🌐 Create Website
     needs: parse-data
     runs-on: ubuntu-latest
     steps:
-      - name: Restore cached repository and data
-        uses: actions/cache@v3
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
         with:
-          path: |
-            .
-            cache
-          key: repo-with-data-${{ github.sha }}
+          name: parsed-data
+          path: .
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
       - name: Create stats pages directory
         run: mkdir -p stats_pages
@@ -81,30 +73,25 @@ jobs:
         run: |
           python generate_stats_pages.py --input cache --output stats_pages
 
-      - name: Cache website files
-        uses: actions/cache@v3
+      - name: Upload website artifacts
+        uses: actions/upload-artifact@v3
         with:
+          name: website-files
           path: |
+            cache/
+            stats_pages/
             .
-            cache
-            stats_pages
-            index.html
-          key: repo-with-website-${{ github.sha }}
 
   commit-changes:
     name: 💾 Save Changes
     needs: generate-website
     runs-on: ubuntu-latest
     steps:
-      - name: Restore cached repository and website
-        uses: actions/cache@v3
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
         with:
-          path: |
-            .
-            cache
-            stats_pages
-            index.html
-          key: repo-with-website-${{ github.sha }}
+          name: website-files
+          path: .
 
       - name: Configure Git
         run: |
@@ -125,15 +112,11 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Restore cached repository and website
-        uses: actions/cache@v3
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
         with:
-          path: |
-            .
-            cache
-            stats_pages
-            index.html
-          key: repo-with-website-${{ github.sha }}
+          name: website-files
+          path: .
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -146,4 +129,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-

@@ -11,7 +11,7 @@ def parse_csv(input_path, output_path, generate_doi=False, zenodo_token=None, sa
              create_github_release=False, github_token=None, github_repo_owner=None, github_repo_name=None,
              include_parsing_code=False, parsing_code_path="parse_legal_acts_statistics.py"):
     """
-    Parse legislative acts CSV file from local file or URL.
+    Parse legal acts CSV file from local file or URL.
     
     Args:
         input_path (str): Path or URL to input CSV file
@@ -118,7 +118,7 @@ def parse_csv(input_path, output_path, generate_doi=False, zenodo_token=None, sa
         try:
             from zenodo_publisher import ZenodoPublisher
             
-            # Extract date from filename (assuming format like 'legislative_acts_2023_05.csv')
+            # Extract date from filename
             filename = os.path.basename(output_path)
             date_match = filename.replace('eurlex_legal_acts_statistics_', '').replace('.csv', '')
             
@@ -135,7 +135,7 @@ def parse_csv(input_path, output_path, generate_doi=False, zenodo_token=None, sa
             
             # Add parsing timestamp to description if not explicitly provided
             if 'description' not in metadata:
-                metadata['description'] = f"Monthly statistics of EU legislative acts for {formatted_date}. Parsed on {parsing_timestamp}."
+                metadata['description'] = f"Monthly statistics of EU legal acts. Parsed on {parsing_timestamp}."
             elif 'Parsed on' not in metadata['description']:
                 metadata['description'] += f" Parsed on {parsing_timestamp}."
             
@@ -190,11 +190,11 @@ def parse_csv(input_path, output_path, generate_doi=False, zenodo_token=None, sa
             
             # Create tag name and release title
             tag_name = f"dataset-{date_match}"
-            title = metadata.get('title') if metadata else f"EU Legislative Acts Statistics - {formatted_date} (Parsed: {parsing_timestamp})"
+            title = metadata.get('title') if metadata else f"EU Legal Acts Statistics - {formatted_date} (Parsed: {parsing_timestamp})"
             
             # Create release body with description
-            description = metadata.get('description') if metadata else f"Monthly statistics of EU legislative acts for {formatted_date}. Parsed on {parsing_timestamp}."
-            body = f"{description}\n\nThis dataset contains legislative acts statistics from EUR-Lex for {formatted_date}. The data was parsed on {parsing_timestamp}."
+            description = metadata.get('description') if metadata else f"Monthly statistics of EU legal acts for {formatted_date}. Parsed on {parsing_timestamp}."
+            body = f"{description}\n\nThis dataset contains legal acts statistics from EUR-Lex. The data was parsed on {parsing_timestamp}."
             
             # Create publisher and publish release
             publisher = GitHubPublisher(
@@ -224,7 +224,7 @@ def parse_csv(input_path, output_path, generate_doi=False, zenodo_token=None, sa
     return doi_info, parsing_timestamp
 
 def main():
-    parser = argparse.ArgumentParser(description='Parse legislative acts CSV file from local file or URL.')
+    parser = argparse.ArgumentParser(description='Parse legal acts CSV file from local file or URL.')
     
     # Input and output options
     parser.add_argument('--input', required=True, help='Path or URL to input CSV file')

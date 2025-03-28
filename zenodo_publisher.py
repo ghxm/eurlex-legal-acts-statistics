@@ -47,12 +47,13 @@ class ZenodoPublisher:
             
         # Default metadata
         default_metadata = {
-            "title": f"EU Legislative Acts Statistics - {formatted_date}" + (f" (Parsed: {parsing_timestamp})" if parsing_timestamp else ""),
-            "description": f"Monthly statistics of EU legislative acts for {formatted_date}." + (f" Parsed on {parsing_timestamp}." if parsing_timestamp else ""),
+            "title": f"EU LEgal Acts Statistics - {formatted_date}" + (f" (Parsed: {parsing_timestamp})" if parsing_timestamp else ""),
+            "description": f"Monthly statistics of EU legal acts." + (f" Parsed on {parsing_timestamp}." if parsing_timestamp else ""),
             "upload_type": "dataset",
-            "creators": [{"name": "EurLex Legal Acts Statistics Project"}],
+            "creators": [{"name": "Maximilian Haag", "affiliation": "GESIS - Leibniz Institute for the Social Sciences", "orcid": "0000-0002-0334-9270"}],
+            "Github_repository": os.getenv("GITHUB_REPOSITORY", "unknown/repo"),
             "access_right": "open",
-            "license": "cc-by",
+            "license": "MIT License",
             "keywords": ["EU", "legislation", "statistics", "legal acts", "EurLex"],
             "publication_date": datetime.now().strftime('%Y-%m-%d')
         }

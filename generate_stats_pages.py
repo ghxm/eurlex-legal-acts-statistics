@@ -43,9 +43,8 @@ def generate_stats_page(csv_path, output_dir):
         parsing_code_fallback if os.path.exists(parse_code_path) else None
     )
 
-    # Extract date from filename (new format with only parsing date)
-    # Handle format: eurlex_legal_acts_statistics_YYYYMMDD.csv
-    date_match = re.search(r'eurlex_legal_acts_statistics_(\d{8}(?:_\d{6})?)', base_name)
+    # Extract date from filename (format: YYYYMMDD_HHMMSS.csv)
+    date_match = re.search(r'(\d{8}_\d{6})', base_name)
     
     commit_version = os.getenv("GITHUB_SHA", "unknown commit")
     git_repository = os.getenv("GITHUB_REPOSITORY", "unknown/repo")
@@ -165,12 +164,19 @@ def generate_stats_page(csv_path, output_dir):
 
 def generate_index_page(stats_files, output_dir):
     """Generate the main index.html page with links to all stats pages."""
-    # Sort files by parsing date (most recent first)
-    sorted_files = sorted(
-        stats_files, 
-        key=lambda x: x['parsing_date'] or '0',
-        reverse=True
-    )
+    # Sort files by parsing timestamp or parsing date (most recent first)
+    def sort_key(x):
+        # First try parsing_timestamp (full datetime)
+        if x['parsing_timestamp']:
+            return x['parsing_timestamp']
+        # Fallback to parsing_date from filename
+        elif x['parsing_date']:
+            return x['parsing_date']
+        # Final fallback
+        else:
+            return '19700101_000000'
+    
+    sorted_files = sorted(stats_files, key=sort_key, reverse=True)
     
     # Load the template
     env = Environment(loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), 'templates')))
